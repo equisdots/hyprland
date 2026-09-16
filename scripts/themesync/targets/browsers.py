@@ -29,8 +29,10 @@ BRAVE_DIRS = (
 )
 FIREFOX_REL = ".mozilla/firefox"
 
-FF_BEGIN = "// === xscriptor-colors theme-sync (managed) ==="
-FF_END = "// === end xscriptor-colors ==="
+FF_BEGIN = "// === equisdots theme-sync (managed) ==="
+FF_END = "// === end equisdots ==="
+FF_LEGACY_BEGIN = "// === xscriptor-colors theme-sync (managed) ==="
+FF_LEGACY_END = "// === end xscriptor-colors ==="
 FF_KEYS = ("browser.theme.toolbar-theme", "browser.theme.content-theme",
            "ui.systemUsesDarkTheme")
 
@@ -133,10 +135,10 @@ def _firefox(env, scheme: int) -> list:
         if os.path.isfile(uj):
             for ln in open(uj, encoding="utf-8", errors="replace"):
                 t = ln.strip()
-                if t == FF_BEGIN:
+                if t == FF_BEGIN or t == FF_LEGACY_BEGIN:
                     inside = True
                     continue
-                if t == FF_END:
+                if t == FF_END or t == FF_LEGACY_END:
                     inside = False
                     continue
                 if inside:

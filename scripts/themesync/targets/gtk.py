@@ -17,8 +17,10 @@ from ..core import best_fg, mix, palette_bg_fg, palette_hex, read_text
 NAME = "gtk"
 DESCRIPTION = "gtk.css (GTK3/4) + system scheme (gsettings)"
 
-BEGIN = "/* === xscriptor-colors theme-sync (managed) === */"
-END = "/* === end xscriptor-colors === */"
+BEGIN = "/* === equisdots theme-sync (managed) === */"
+END = "/* === end equisdots === */"
+LEGACY_BEGIN = "/* === xscriptor-colors theme-sync (managed) === */"
+LEGACY_END = "/* === end xscriptor-colors === */"
 
 
 def available(env) -> bool:
@@ -92,10 +94,10 @@ def apply(env) -> list:
         if css.is_file():
             for ln in read_text(css).splitlines():
                 t = ln.strip()
-                if t == BEGIN:
+                if t == BEGIN or t == LEGACY_BEGIN:
                     inside = True
                     continue
-                if t == END:
+                if t == END or t == LEGACY_END:
                     inside = False
                     continue
                 if inside:

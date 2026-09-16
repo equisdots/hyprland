@@ -49,13 +49,10 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("bash -c 'BIN=\"\"; command -v quickshell >/dev/null 2>&1 && BIN=quickshell || command -v qs >/dev/null 2>&1 && BIN=qs; [ -n \"$BIN\" ] && exec $BIN -p ~/.config/hypr/scripts/quickshell/Shell.qml || true'")
 
     -- Focus daemon
-    hl.exec_cmd("python3 ~/.config/hypr/scripts/quickshell/focustime/focus_daemon.py &")
+    hl.exec_cmd("python3 ~/.config/hypr/scripts/quickshell/ui/panels/focustime/focus_daemon.py &")
 
     -- System init (wallpaper on first boot)
     hl.exec_cmd("~/.config/hypr/scripts/init.sh")
-
-    -- Show the getting-started guide on first session
-    hl.exec_cmd("bash -c 'sleep 1 && ~/.config/hypr/scripts/qs_manager.sh toggle guide'")
 
     -- MPRIS player daemon
     hl.exec_cmd("playerctld")

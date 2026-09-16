@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Generate the SDDM login theme Colors.qml from the active palette.
 #
-# Reads settings.json -> dock.palette, derives the 7 roles the SDDM theme
-# uses (base, surface0, text, subtext0, mauve, blue, red) exactly like
-# dock/Colors.qml does, and writes ~/.config/hypr/sddm-colors.qml. If the
-# installed theme dir exists it also tries to update its Colors.qml.
+# Reads settings.json -> bar.palette (the old "dock" shape is migrated once by
+# the shell), derives the 7 roles the SDDM theme uses (base, surface0, text,
+# subtext0, mauve, blue, red) exactly like ui/bar/Colors.qml does, and writes
+# ~/.config/hypr/sddm-colors.qml. If the installed theme dir exists it also
+# tries to update its Colors.qml.
 #
 # No Matugen involved. Safe to run at any time (cheap: jq + python3).
 
@@ -15,7 +16,7 @@ SETTINGS="$HOME_DIR/.config/hypr/settings.json"
 PALETTES="$HOME_DIR/.config/hypr/scripts/quickshell/dock/palettes"
 OUT="$HOME_DIR/.config/hypr/sddm-colors.qml"
 
-PALETTE="$(jq -r '.dock.palette // "x"' "$SETTINGS" 2>/dev/null || echo "x")"
+PALETTE="$(jq -r '.bar.palette // "x"' "$SETTINGS" 2>/dev/null || echo "x")"
 PAL_JSON="$PALETTES/$PALETTE.json"
 [ -f "$PAL_JSON" ] || PAL_JSON="$PALETTES/x.json"
 [ -f "$PAL_JSON" ] || { echo "No palette found" >&2; exit 1; }

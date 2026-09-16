@@ -12,7 +12,7 @@
 #     locales por delante de origin/main. En cualquier otro caso: notifica y
 #     no toca nada.
 #   - Si NO hay clon del repo: compara la versión remota del instalador con la
-#     local (`~/.local/state/xshell-version`) y notifica si hay una nueva.
+#     local (`~/.local/state/equisdots-version`) y notifica si hay una nueva.
 #
 # Modos:
 #   (sin args)         → comprobación mensual (fetch limitado) + auto-pull seguro
@@ -31,9 +31,9 @@ PENDING_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/quickshell/updater"
 PENDING_FILE="$PENDING_DIR/update_pending"
 FETCH_STAMP="$STATE_DIR/dotfiles-last-fetch"
 UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
-VERSION_FILE="$HOME/.local/state/xshell-version"
-REMOTE_MANIFEST_URL="https://raw.githubusercontent.com/xscriptor-colors/hyprland/main/updates.json"
-REMOTE_INSTALL_URL="https://raw.githubusercontent.com/xscriptor-colors/hyprland/main/install.sh"
+VERSION_FILE="$HOME/.local/state/equisdots-version"
+REMOTE_MANIFEST_URL="https://raw.githubusercontent.com/equisdots/hyprland/main/updates.json"
+REMOTE_INSTALL_URL="https://raw.githubusercontent.com/equisdots/hyprland/main/install.sh"
 REF_BRANCH="main"
 # Cache del manifest del updater (MISMO path que usa el popup SUPER+U:
 # Caching.getCacheDir("updater")). El popup solo hace red si el sello no es
@@ -72,7 +72,9 @@ resolve_repo() {
     local cand
     cand="$(cd "$SCRIPT_DIR/.." 2>/dev/null && pwd)"
     if [ -n "$cand" ] && [ -d "$cand/.git" ]; then printf '%s\n' "$cand"; return; fi
-    for cand in "$HOME/Documents/xscriptor-colors/hyprland" "$HOME/hyprland"; do
+    for cand in "$HOME/.local/share/equisdots/hyprland" \
+                "$HOME/Documents/xscriptor-colors/equisdots/repos/hyprland" \
+                "$HOME/hyprland"; do
         if [ -d "$cand/.git" ]; then printf '%s\n' "$cand"; return; fi
     done
     printf ''
@@ -219,7 +221,7 @@ install_timer() {
     mkdir -p "$UNIT_DIR"
     cat > "$UNIT_DIR/dotfiles-update.service" <<EOF
 [Unit]
-Description=Comprobación mensual de dotfiles (xscriptor-colors)
+Description=Comprobación mensual de dotfiles (equisdots)
 
 [Service]
 Type=oneshot
@@ -227,7 +229,7 @@ ExecStart=$SCRIPT_DIR/dotfiles-update.sh
 EOF
     cat > "$UNIT_DIR/dotfiles-update.timer" <<'EOF'
 [Unit]
-Description=Comprobación mensual de dotfiles (xscriptor-colors)
+Description=Comprobación mensual de dotfiles (equisdots)
 
 [Timer]
 OnCalendar=monthly

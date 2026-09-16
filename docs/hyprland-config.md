@@ -42,7 +42,7 @@ hyprland.lua
 
 Colors are **fixed** to the 12 palettes in `dock/palettes/`, no longer generated per-wallpaper by Matugen. `colors.lua` exports the palette and the border colors used by `settings.lua`.
 
-Matugen is no longer used: all widgets and window borders follow the 12 fixed palettes in `dock/palettes/` (see themes.md).
+Matugen is no longer used: all widgets and window borders follow the 12 fixed palettes in `dock/palettes/` (UI side: `equisdots/shell` `docs/themes.md`).
 
 ## Auto Monitor Detection
 

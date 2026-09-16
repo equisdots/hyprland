@@ -15,8 +15,10 @@ NAME = "cava"
 DESCRIPTION = "managed [color] block with a palette gradient"
 
 CAVA_REL = ".config/cava"
-BEGIN = "# === xscriptor-colors theme-sync (managed) ==="
-END = "# === end xscriptor-colors ==="
+BEGIN = "# === equisdots theme-sync (managed) ==="
+END = "# === end equisdots ==="
+LEGACY_BEGIN = "# === xscriptor-colors theme-sync (managed) ==="
+LEGACY_END = "# === end xscriptor-colors ==="
 
 
 def available(env) -> bool:
@@ -48,6 +50,7 @@ def apply(env) -> list:
     base = cdir / "config_base"
     if cfg.exists():
         kept, _ = strip_block(read_text(cfg).splitlines(), BEGIN, END)
+        kept, _ = strip_block(kept, LEGACY_BEGIN, LEGACY_END)
         if any(ln.strip() == "[color]" for ln in kept):
             # The user manages their own colors: leave it alone.
             return ["cava: custom [color] section detected; left untouched"]

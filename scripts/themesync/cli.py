@@ -4,7 +4,7 @@
 #   theme-sync.sh [--list] [--dry-run] [--targets a,b,c]
 #                 [--palettes DIR] [--settings FILE]
 #
-# Defaults match the xscriptor desktop layout; the .sh wrapper forwards its
+# Defaults match the equisdots desktop layout; the .sh wrapper forwards its
 # arguments as-is. `--list` is the quick way to see the available targets.
 # ═══════════════════════════════════════════════════════════════════════════
 from __future__ import annotations

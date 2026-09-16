@@ -7,8 +7,9 @@
 -- ║ X.rgba(name, alpha) to build Hyprland color strings.                      ║
 -- ║                                                                           ║
 -- ║ Window borders are palette-driven: the active palette slug and any manual ║
--- ║ border overrides are read from settings.json "dock"; the accent (color1)  ║
--- ║ and muted (color8) colors come from dock/palettes/<slug>.json.            ║
+-- ║ border overrides are read from the settings.json "bar" section (the old   ║
+-- ║ "dock" shape is migrated once by the shell); the accent (color1) and       ║
+-- ║ muted (color8) colors come from dock/palettes/<slug>.json.
 -- ╚═══════════════════════════════════════════════════════════════════════════╝
 
 local X = {
@@ -49,47 +50,82 @@ function X.hex(name)
 end
 
 -- Ready-to-use border colors
--- Palette-driven: reads settings.json "dock" (palette slug + optional manual
--- border overrides) and the matching dock/palettes/<slug>.json for the accent
--- (color1) and muted (color8) colors. Matugen is NOT involved.
-local function jsonString(path, key)
-    local f = io.open(path, "r")
-    if not f then return nil end
-    local c = f:read("*a")
-    f:close()
-    return c:match('"' .. key .. '"%s*:%s*"([^"]+)"')
+-- Palette-driven: reads the settings.json "bar" section (palette slug + optional
+-- manual border overrides; the old "dock" shape is migrated once by the shell)
+-- and the matching dock/palettes/<slug>.json for the accent (color1) and muted
+-- (color8) colors. Matugen is NOT involved.
+local function jsonSection(text, name)
+    -- Raw text of a top-level object, by brace matching (config values are
+    -- plain strings/numbers/booleans; no braces inside strings here).
+    local start = text:find('"' .. name .. '"%s*:%s*{')
+    if not start then return nil end
+    local i = text:find("{", start)
+    if not i then return nil end
+    local depth = 0
+    for j = i, #text do
+        local ch = text:sub(j, j)
+        if ch == "{" then
+            depth = depth + 1
+        elseif ch == "}" then
+            depth = depth - 1
+            if depth == 0 then return text:sub(i, j) end
+        end
+    end
+    return nil
 end
 
-local function jsonBool(path, key)
+local function jsonString(text, key)
+    if not text then return nil end
+    return text:match('"' .. key .. '"%s*:%s*"([^"]+)"')
+end
+
+local function jsonBool(text, key)
+    if not text then return nil end
+    return text:match('"' .. key .. '"%s*:%s*(%w+)')
+end
+
+local function jsonStringFile(path, key)
     local f = io.open(path, "r")
     if not f then return nil end
     local c = f:read("*a")
     f:close()
-    return c:match('"' .. key .. '"%s*:%s*(%w+)')
+    return jsonString(c, key)
 end
 
 local home = os.getenv("HOME") or ""
 local settingsPath = home .. "/.config/hypr/settings.json"
 
-local borderActiveHex   = jsonString(settingsPath, "borderActive")
-local borderInactiveHex = jsonString(settingsPath, "borderInactive")
-local followPalette     = jsonBool(settingsPath, "borderFollowPalette")
+local settings
+do
+    local f = io.open(settingsPath, "r")
+    if f then
+        settings = f:read("*a")
+        f:close()
+    end
+end
+
+-- Canonical key: "bar" (the pre-0.2 "dock" config is migrated by the shell).
+local scope = settings and jsonSection(settings, "bar") or nil
+
+local borderActiveHex   = jsonString(scope, "borderActive")
+local borderInactiveHex = jsonString(scope, "borderInactive")
+local followPalette     = jsonBool(scope, "borderFollowPalette")
 
 if followPalette == "false" and borderActiveHex and borderActiveHex ~= "" and borderActiveHex:sub(1,1) == "#" then
     X.active_border = "rgba(" .. borderActiveHex:sub(2) .. "ee)"
 else
-    local slug = jsonString(settingsPath, "palette") or "x"
+    local slug = jsonString(scope, "palette") or "x"
     local palPath = home .. "/.config/hypr/scripts/quickshell/dock/palettes/" .. slug .. ".json"
-    local c1 = jsonString(palPath, "color1")
+    local c1 = jsonStringFile(palPath, "color1")
     X.active_border = c1 and c1:sub(1,1) == "#" and ("rgba(" .. c1:sub(2) .. "ee)") or ("rgba(" .. X.color1 .. "ee)")
 end
 
 if followPalette == "false" and borderInactiveHex and borderInactiveHex ~= "" and borderInactiveHex:sub(1,1) == "#" then
     X.inactive_border = "rgba(" .. borderInactiveHex:sub(2) .. "aa)"
 else
-    local slug = jsonString(settingsPath, "palette") or "x"
+    local slug = jsonString(scope, "palette") or "x"
     local palPath = home .. "/.config/hypr/scripts/quickshell/dock/palettes/" .. slug .. ".json"
-    local c8 = jsonString(palPath, "color8")
+    local c8 = jsonStringFile(palPath, "color8")
     X.inactive_border = c8 and c8:sub(1,1) == "#" and ("rgba(" .. c8:sub(2) .. "aa)") or ("rgba(" .. X.color8 .. "aa)")
 end
 

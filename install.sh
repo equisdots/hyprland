@@ -1,17 +1,7 @@
 #!/bin/bash
-# ╔═══════════════════════════════════════════════════════════════════════════════════╗
-# ║                                                                                   ║
-# ║    ██╗  ██╗██╗   ██╗██████╗ ██████╗ ██╗      █████╗ ███╗   ██╗██████╗             ║
-# ║    ██║  ██║╚██╗ ██╔╝██╔══██╗██╔══██╗██║     ██╔══██╗████╗  ██║██╔══██╗            ║
-# ║    ███████║ ╚████╔╝ ██████╔╝██████╔╝██║     ███████║██╔██╗ ██║██║  ██║            ║
-# ║    ██╔══██║  ╚██╔╝  ██╔═══╝ ██╔══██╗██║     ██╔══██║██║╚██╗██║██║  ██║            ║
-# ║    ██║  ██║   ██║   ██║     ██║  ██║███████╗██║  ██║██║ ╚████║██████╔╝            ║
-# ║    ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝             ║
-# ║                                                                                   ║
-# ║                Hyprland Premium Configuration Installer v1.0.0                    ║
-# ║                         by xscriptor                                              ║
-# ║                                                                                   ║
-# ╚═══════════════════════════════════════════════════════════════════════════════════╝
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  ◈ HYPRLAND CONFIGURATION INSTALLER
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 set -e
 
@@ -44,8 +34,7 @@ INSTALL_VERSION="1.0.0"
 print_banner() {
     echo -e "${MAGENTA}"
     echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║     HYPRLAND PREMIUM CONFIGURATION INSTALLER v1.0.0           ║"
-    echo "║                by xscriptor                                   ║"
+    echo "║     HYPRLAND CONFIGURATION INSTALLER v1.0.0                   ║"
     echo "╚═══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
@@ -252,7 +241,7 @@ CORE_PACKAGES_ARCH=(
     "gvfs"
     "gvfs-mtp"
 
-    # New packages from xshell
+    # New packages from equisdots
     "quickshell-git"
     "swayosd-git"
     "cava"
@@ -875,13 +864,13 @@ check_requirements() {
 # └───────────────────────────────────────────────────────────────────────────────────┘
 
 
-# Writes the local xshell version state read by the guide/updater/notifier.
-write_xshell_version() {
+# Writes the local version state read by the guide/updater/notifier.
+write_version_state() {
     mkdir -p "$HOME/.local/state"
-    cat > "$HOME/.local/state/xshell-version" <<EOF
+    cat > "$HOME/.local/state/equisdots-version" <<EOF
 LOCAL_VERSION="$INSTALL_VERSION"
 EOF
-    log "Wrote xshell version ($INSTALL_VERSION)"
+    log "Wrote version state ($INSTALL_VERSION)"
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -977,7 +966,7 @@ main() {
 
     # Install dotfiles
     install_dotfiles
-    write_xshell_version
+    write_version_state
 
     # Download wallpaper pack
     download_wallpapers
@@ -1091,7 +1080,7 @@ case "$1" in
     --dotfiles-only)
         backup_config
         install_dotfiles
-        write_xshell_version
+        write_version_state
         install_kitty_config
         install_starship_config
         install_hack_nerd_font

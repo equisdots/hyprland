@@ -55,7 +55,7 @@ return M
 -- The rest of the nvim config comes from the user's own repo.
 local function current_palette()
   local home = vim.fn.expand("~")
-  local f = io.popen('jq -r ".dock.palette // \\\\"x\\\\"" ' .. vim.fn.shellescape(home .. "/.config/hypr/settings.json") .. " 2>/dev/null")
+  local f = io.popen('jq -r ".bar.palette // \\\\"x\\\\"" ' .. vim.fn.shellescape(home .. "/.config/hypr/settings.json") .. " 2>/dev/null")
   if not f then return "x" end
   local slug = f:read("*l")
   f:close()

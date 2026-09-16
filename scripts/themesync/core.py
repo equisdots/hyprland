@@ -104,10 +104,18 @@ def load_palettes(palettes_dir: Path) -> list:
 
 
 def active_slug(settings: dict) -> str:
-    """Active palette slug from settings.json (dock.palette); 'x' if missing."""
-    dock = settings.get("dock") if isinstance(settings, dict) else None
-    slug = dock.get("palette") if isinstance(dock, dict) else None
-    return str(slug) if slug else DEFAULT_SLUG
+    """Active palette slug from settings.json ("bar.palette"); 'x' if missing.
+
+    Old configs stored it under "dock"; that shape is migrated once by the
+    shell (BarLayout.getBar), so readers only ever look at the canonical key.
+    """
+    if isinstance(settings, dict):
+        bar = settings.get("bar")
+        if isinstance(bar, dict):
+            slug = bar.get("palette")
+            if slug is not None and str(slug).strip():
+                return str(slug).strip().lower()
+    return DEFAULT_SLUG
 
 
 def palette_bg_fg(pal: dict) -> tuple[str, str]:
