@@ -158,6 +158,45 @@ install_packages_debian() {
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
+# │ XWWW (WALLPAPER DAEMON)                                                           │
+# └───────────────────────────────────────────────────────────────────────────────────┘
+# Builds/installs the xwww fork (extra transitions; client 'xwww', daemon
+# 'xwww-daemon' in /usr/local/bin). davincix and autostart.lua call it, so the
+# upstream 'awww' package is not installed. Set FORCE_XWWW=1 to rebuild.
+install_xwww() {
+    if command -v xwww-daemon >/dev/null 2>&1 && [[ "${FORCE_XWWW:-0}" != "1" ]]; then
+        log "xwww-daemon already installed ($(command -v xwww-daemon)); skipping build (FORCE_XWWW=1 to rebuild)"
+        return 0
+    fi
+
+    log "Building xwww (wallpaper daemon fork)..."
+    local src="${XDG_CACHE_HOME:-$HOME/.cache}/xwww-build"
+    if [[ -d "$src/.git" ]]; then
+        git -C "$src" pull --ff-only --quiet || warn "xwww: pull failed; building the existing checkout"
+    else
+        rm -rf "$src"
+        git clone --depth 1 https://github.com/x-ports/xwww "$src" --quiet || {
+            warn "xwww: clone failed; install it later with equisdots/dots scripts/install-xwww.sh"
+            return 1
+        }
+    fi
+
+    if ! command -v cargo >/dev/null 2>&1; then
+        warn "xwww: cargo missing; install 'rust' and re-run the installer"
+        return 1
+    fi
+
+    (cd "$src" && cargo build --release) || { warn "xwww: build failed"; return 1; }
+    sudo install -m755 "$src/target/release/xwww" "$src/target/release/xwww-daemon" /usr/local/bin/
+    log "xwww installed: $(command -v xwww-daemon)"
+
+    if pacman -Qq awww >/dev/null 2>&1; then
+        warn "package 'awww' is installed; xwww-daemon wins on PATH."
+        warn "remove the upstream package with: sudo pacman -Rns awww"
+    fi
+}
+
+# ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ CORE PACKAGES                                                                     │
 # └───────────────────────────────────────────────────────────────────────────────────┘
 
@@ -187,7 +226,6 @@ CORE_PACKAGES_ARCH=(
     "starship"
 
     # Utilities
-    "awww"
     "dunst"
     "hypridle"
     "grim"
@@ -203,6 +241,9 @@ CORE_PACKAGES_ARCH=(
     "libnotify"
     "iproute2"
     "pciutils"
+    # xwww (wallpaper daemon fork) is built from source below; rust = cargo.
+    # The upstream 'awww' package is intentionally NOT installed.
+    "rust"
     "pavucontrol"
     "networkmanager"
     "rofi-emoji"
@@ -951,7 +992,7 @@ main() {
         fedora)
             warn "Fedora support is experimental. Some packages may not be available."
             # Basic packages for Fedora
-            install_packages_fedora hyprland rofi-wayland kitty starship dunst grim slurp wl-clipboard jq imagemagick librsvg2 ddcutil
+            install_packages_fedora hyprland rofi-wayland kitty starship dunst grim slurp wl-clipboard jq imagemagick librsvg2 ddcutil rust
             ;;
         debian|ubuntu|pop)
             error "Debian/Ubuntu requires manual Hyprland installation from source."
@@ -963,6 +1004,9 @@ main() {
             exit 1
             ;;
     esac
+
+    # xwww wallpaper daemon (fork; replaces the upstream awww package)
+    install_xwww || true
 
     # Install dotfiles
     install_dotfiles

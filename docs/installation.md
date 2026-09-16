@@ -35,7 +35,8 @@ Deploys configuration files without package installation. Useful if packages are
 2. Installs required packages via AUR helper (yay/paru):
    - Hyprland and its Wayland ecosystem (xdg-desktop-portal, qt5/6-wayland, polkit)
    - QuickShell (QML shell), Matugen (color generation), SwayOSD (on-screen display)
-   - Utilities: kitty, awww, dunst, grim, slurp, cliphist, gpu-screen-recorder, rofi, cava, and more
+   - Utilities: kitty, dunst, grim, slurp, cliphist, gpu-screen-recorder, rofi, cava, and more
+   - xwww: built from source (fork of awww with extra transitions) and installed to `/usr/local/bin` — the upstream `awww` package is not used
    - Fonts: Hack Nerd Font (downloaded separately), Noto Fonts, Noto Emoji
    - Themes: adw-gtk3, Papirus icons, Bibata cursors
    - NVIDIA: nvidia-utils, nvidia-settings, libva-nvidia-driver, egl-wayland, envycontrol
@@ -73,6 +74,8 @@ The first boot will initialize the wallpaper daemon, generate Matugen colors, an
 ## Wallpaper stack
 
 Still wallpapers are applied by `davincix` through **xwww** (fork of awww with
-the extra transitions): build it with `equisdots/dots` (`scripts/install-xwww.sh`)
-and keep `xwww-daemon` on PATH. Video wallpapers need `mpvpaper`. The daemon is
-launched from `autostart.lua` and restarted by the shell after theme changes.
+the extra transitions). `install.sh` builds and installs it automatically
+(`xwww` + `xwww-daemon` in `/usr/local/bin`; set `FORCE_XWWW=1` to rebuild);
+standalone alternative: `equisdots/dots` (`scripts/install-xwww.sh`). Video
+wallpapers need `mpvpaper`. The daemon is launched from `autostart.lua` and
+restarted by the shell after theme changes.
