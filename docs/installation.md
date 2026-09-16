@@ -69,3 +69,10 @@ Removes all deployed configuration files and SDDM theme. Optionally restores fro
 - App launcher: SUPER + D
 
 The first boot will initialize the wallpaper daemon, generate Matugen colors, and start all background services automatically.
+
+## Wallpaper stack
+
+Still wallpapers are applied by `davincix` through **xwww** (fork of awww with
+the extra transitions): build it with `equisdots/dots` (`scripts/install-xwww.sh`)
+and keep `xwww-daemon` on PATH. Video wallpapers need `mpvpaper`. The daemon is
+launched from `autostart.lua` and restarted by the shell after theme changes.
