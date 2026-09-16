@@ -1,0 +1,32 @@
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ MONITORS                                                                   ║
+-- ║                                                                           ║
+-- ║ The wildcard below auto-detects every connected monitor at its highest    ║
+-- ║ available refresh rate ("highrr") with automatic position/scale.          ║
+-- ║                                                                           ║
+-- ║ The SAVED LAYOUT (~/.config/hypr/display-config) is NOT applied here:     ║
+-- ║ reading files during config parse proved unreliable in the Lua config     ║
+-- ║ sandbox (rules silently never fire). scripts/restore-monitors.sh (started ║
+-- ║ in autostart.lua) is the authoritative restorer: it applies the saved     ║
+-- ║ layout at session start and reconciles it continuously (polling every     ║
+-- ║ ~2s + on hotplug), so it also survives connector renames (DP-5 -> DP-3)   ║
+-- ║ and stray `hyprctl reload`s.                                              ║
+-- ║                                                                           ║
+-- ║ Layout lines are keyed by the monitor DESCRIPTION (EDID model + serial,   ║
+-- ║ e.g. "Xiaomi Corporation P27FBB-RGGL 5275600003570") which identifies a   ║
+-- ║ physical screen no matter what connector it lands on.                     ║
+-- ║                                                                           ║
+-- ║ For a static multi-monitor layout, uncomment and edit the entries below.  ║
+-- ║ Identify your monitors with: hyprctl monitors all                         ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
+
+-- Wildcard: monitors without a saved layout get the preferred resolution, the
+-- highest refresh rate and auto position/scale.
+hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- Example static layout (uncomment to use instead of the wildcard):
+--
+-- hl.monitor({ output = "eDP-1", mode = "1920x1080@144", position = "0x0",  scale = 1 })
+-- hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@60", position = "1920x0", scale = 1 })
+-- ────────────────────────────────────────────────────────────────────────────
