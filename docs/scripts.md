@@ -31,7 +31,7 @@ All scripts reside in the repository root `scripts/` directory and are deployed 
 
 | Script | Purpose |
 |--------|---------|
-| `lock.sh` | Locks the session by launching `Lock.qml` via QuickShell, which acquires a `WlSessionLock`. |
+| `lock.sh` | Locks the session by launching the shell's alternate entry `~/.config/hypr/scripts/quickshell/Lock.qml` via QuickShell, which acquires a `WlSessionLock`. |
 | `exit.sh` | Gracefully ends the Hyprland session by stopping user targets and dispatching `hyprctl dispatch exit`. |
 | `gpu-mode.sh` | NVIDIA Optimus mode switcher wrapping `envycontrol`. Supports cycle (silent/hybrid/nvidia), Rofi menu selector, and Waybar status output. Requires passwordless sudo rule (set up by installer). |
 | `monitor-manager.sh` | Rofi-based multi-monitor manager. Supports positioning (left/right/above/below/mirror), single display modes, and refresh rate changes per monitor. Applies changes through the Lua API (`hyprctl eval 'hl.monitor(...)'`). Displays monitor info via notification. |
