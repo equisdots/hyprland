@@ -160,10 +160,10 @@ install_packages_debian() {
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ XWWW (WALLPAPER DAEMON)                                                           │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-# Installs the xwww fork (extra transitions) from the checksum-verified release
-# tarball, with a source-build fallback. The client 'xwww' and daemon
-# 'xwww-daemon' go to /usr/local/bin (davincix and autostart.lua call them), so
-# the upstream 'awww' package is not installed. Env:
+# Installs only what davincix needs from the xwww fork (extra transitions): the
+# client 'xwww' and the daemon 'xwww-daemon' in /usr/local/bin (checksum-verified
+# release tarball, source build as fallback). The upstream 'awww' package is not
+# installed. Env:
 #   FORCE_XWWW=1       reinstall even when xwww-daemon is already present
 #   XWWW_VERSION=...   release tag to install (default v0.12.1)
 XWWW_VERSION="${XWWW_VERSION:-v0.12.1}"
@@ -177,8 +177,7 @@ xwww_release_arch() {
     esac
 }
 
-# Download + verify + install the prebuilt tarball (binaries, man pages,
-# completions and the systemd user unit, patched to /usr/local/bin).
+# Download + verify + install the prebuilt tarball (binaries only).
 install_xwww_release() {
     local arch="$1"
     local base="xwww-${XWWW_VERSION}-${arch}"
@@ -217,16 +216,6 @@ install_xwww_release() {
     fi
 
     sudo install -Dm755 "$d/xwww" "$d/xwww-daemon" /usr/local/bin/
-    if [[ -d "$d/man" ]]; then
-        sudo install -Dm644 "$d"/man/*.1 /usr/local/share/man/man1/
-    fi
-    [[ -f "$d/completions/xwww.bash" ]] && sudo install -Dm644 "$d/completions/xwww.bash" /usr/local/share/bash-completion/completions/xwww
-    [[ -f "$d/completions/_xwww" ]] && sudo install -Dm644 "$d/completions/_xwww" /usr/local/share/zsh/site-functions/_xwww
-    [[ -f "$d/completions/xwww.fish" ]] && sudo install -Dm644 "$d/completions/xwww.fish" /usr/local/share/fish/vendor_completions.d/xwww.fish
-    if [[ -f "$d/contrib/xwww-daemon.service" ]]; then
-        sed 's|/usr/bin/xwww-daemon|/usr/local/bin/xwww-daemon|' "$d/contrib/xwww-daemon.service" \
-            | sudo tee /etc/systemd/user/xwww-daemon.service >/dev/null
-    fi
 
     rm -rf "$tmp"
     log "xwww installed from release: $(command -v xwww-daemon)"
@@ -258,15 +247,6 @@ install_xwww_source() {
     fi
 
     sudo install -Dm755 "$src/target/release/xwww" "$src/target/release/xwww-daemon" /usr/local/bin/
-    if [[ -f "$src/completions/xwww.bash" ]]; then
-        sudo install -Dm644 "$src/completions/xwww.bash" /usr/local/share/bash-completion/completions/xwww
-    fi
-    if [[ -f "$src/completions/_xwww" ]]; then
-        sudo install -Dm644 "$src/completions/_xwww" /usr/local/share/zsh/site-functions/_xwww
-    fi
-    if [[ -f "$src/completions/xwww.fish" ]]; then
-        sudo install -Dm644 "$src/completions/xwww.fish" /usr/local/share/fish/vendor_completions.d/xwww.fish
-    fi
 
     log "xwww installed from source: $(command -v xwww-daemon)"
     return 0

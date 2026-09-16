@@ -75,10 +75,10 @@ The first boot will initialize the wallpaper daemon, generate Matugen colors, an
 
 Still wallpapers are applied by `davincix` through **xwww** (fork of awww with
 the extra transitions). `install.sh` installs the checksum-verified prebuilt
-release for `x86_64`/`aarch64` (`xwww` + `xwww-daemon` in `/usr/local/bin`,
-plus man pages, shell completions and a systemd user unit) and falls back to a
-source build (rust) when there is no release for the machine. `XWWW_VERSION`
-overrides the release tag and `FORCE_XWWW=1` reinstalls an existing one;
-standalone alternative: `equisdots/dots` (`scripts/install-xwww.sh`). Video
-wallpapers need `mpvpaper`. The daemon is launched from `autostart.lua` and
-restarted by the shell after theme changes.
+release for `x86_64`/`aarch64` — only the two binaries davincix needs
+(`xwww` + `xwww-daemon` in `/usr/local/bin`) — and falls back to a source build
+(rust) when there is no release for the machine. `XWWW_VERSION` overrides the
+release tag and `FORCE_XWWW=1` reinstalls an existing one; standalone
+alternative: `equisdots/dots` (`scripts/install-xwww.sh`). Video wallpapers
+need `mpvpaper`. The daemon is launched from `autostart.lua` and restarted by
+the shell after theme changes.
