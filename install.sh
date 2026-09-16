@@ -160,25 +160,91 @@ install_packages_debian() {
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ XWWW (WALLPAPER DAEMON)                                                           │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-# Builds/installs the xwww fork (extra transitions; client 'xwww', daemon
-# 'xwww-daemon' in /usr/local/bin). davincix and autostart.lua call it, so the
-# upstream 'awww' package is not installed. Set FORCE_XWWW=1 to rebuild.
-install_xwww() {
-    if command -v xwww-daemon >/dev/null 2>&1 && [[ "${FORCE_XWWW:-0}" != "1" ]]; then
-        log "xwww-daemon already installed ($(command -v xwww-daemon)); skipping build (FORCE_XWWW=1 to rebuild)"
-        return 0
+# Installs the xwww fork (extra transitions) from the checksum-verified release
+# tarball, with a source-build fallback. The client 'xwww' and daemon
+# 'xwww-daemon' go to /usr/local/bin (davincix and autostart.lua call them), so
+# the upstream 'awww' package is not installed. Env:
+#   FORCE_XWWW=1       reinstall even when xwww-daemon is already present
+#   XWWW_VERSION=...   release tag to install (default v0.12.1)
+XWWW_VERSION="${XWWW_VERSION:-v0.12.1}"
+
+# Release asset suffix for this machine ("" when there is no prebuilt).
+xwww_release_arch() {
+    case "$(uname -m)" in
+        x86_64) echo "x86_64-unknown-linux-gnu" ;;
+        aarch64|arm64) echo "aarch64-unknown-linux-gnu" ;;
+        *) echo "" ;;
+    esac
+}
+
+# Download + verify + install the prebuilt tarball (binaries, man pages,
+# completions and the systemd user unit, patched to /usr/local/bin).
+install_xwww_release() {
+    local arch="$1"
+    local base="xwww-${XWWW_VERSION}-${arch}"
+    local url="https://github.com/x-ports/xwww/releases/download/${XWWW_VERSION}/${base}.tar.gz"
+    local tmp; tmp="$(mktemp -d)"
+
+    log "Downloading xwww ${XWWW_VERSION} (${arch})..."
+    if ! curl -fsSL "$url" -o "$tmp/pkg.tar.gz"; then
+        rm -rf "$tmp"
+        return 1
     fi
 
-    log "Building xwww (wallpaper daemon fork)..."
+    if curl -fsSL "$url.sha256" -o "$tmp/pkg.sha256" 2>/dev/null; then
+        local expected actual
+        expected="$(cut -d' ' -f1 "$tmp/pkg.sha256" | head -1)"
+        actual="$(sha256sum "$tmp/pkg.tar.gz" | cut -d' ' -f1)"
+        if [[ -z "$expected" || "$expected" != "$actual" ]]; then
+            warn "xwww: checksum mismatch; aborting the release install"
+            rm -rf "$tmp"
+            return 1
+        fi
+    else
+        warn "xwww: checksum file unavailable; continuing without verification"
+    fi
+
+    if ! tar -xzf "$tmp/pkg.tar.gz" -C "$tmp" >/dev/null 2>&1; then
+        warn "xwww: could not extract the tarball"
+        rm -rf "$tmp"
+        return 1
+    fi
+    local d="$tmp/$base"
+    if [[ ! -f "$d/xwww" || ! -f "$d/xwww-daemon" ]]; then
+        warn "xwww: unexpected tarball layout"
+        rm -rf "$tmp"
+        return 1
+    fi
+
+    sudo install -Dm755 "$d/xwww" "$d/xwww-daemon" /usr/local/bin/
+    if [[ -d "$d/man" ]]; then
+        sudo install -Dm644 "$d"/man/*.1 /usr/local/share/man/man1/
+    fi
+    [[ -f "$d/completions/xwww.bash" ]] && sudo install -Dm644 "$d/completions/xwww.bash" /usr/local/share/bash-completion/completions/xwww
+    [[ -f "$d/completions/_xwww" ]] && sudo install -Dm644 "$d/completions/_xwww" /usr/local/share/zsh/site-functions/_xwww
+    [[ -f "$d/completions/xwww.fish" ]] && sudo install -Dm644 "$d/completions/xwww.fish" /usr/local/share/fish/vendor_completions.d/xwww.fish
+    if [[ -f "$d/contrib/xwww-daemon.service" ]]; then
+        sed 's|/usr/bin/xwww-daemon|/usr/local/bin/xwww-daemon|' "$d/contrib/xwww-daemon.service" \
+            | sudo tee /etc/systemd/user/xwww-daemon.service >/dev/null
+    fi
+
+    rm -rf "$tmp"
+    log "xwww installed from release: $(command -v xwww-daemon)"
+    return 0
+}
+
+# Fallback: clone and build with cargo (needs rust).
+install_xwww_source() {
+    log "Building xwww from source..."
     local src="${XDG_CACHE_HOME:-$HOME/.cache}/xwww-build"
     if [[ -d "$src/.git" ]]; then
         git -C "$src" pull --ff-only --quiet || warn "xwww: pull failed; building the existing checkout"
     else
         rm -rf "$src"
-        git clone --depth 1 https://github.com/x-ports/xwww "$src" --quiet || {
+        if ! git clone --depth 1 https://github.com/x-ports/xwww "$src" --quiet; then
             warn "xwww: clone failed; install it later with equisdots/dots scripts/install-xwww.sh"
             return 1
-        }
+        fi
     fi
 
     if ! command -v cargo >/dev/null 2>&1; then
@@ -186,9 +252,40 @@ install_xwww() {
         return 1
     fi
 
-    (cd "$src" && cargo build --release) || { warn "xwww: build failed"; return 1; }
-    sudo install -m755 "$src/target/release/xwww" "$src/target/release/xwww-daemon" /usr/local/bin/
-    log "xwww installed: $(command -v xwww-daemon)"
+    if ! (cd "$src" && cargo build --release); then
+        warn "xwww: build failed"
+        return 1
+    fi
+
+    sudo install -Dm755 "$src/target/release/xwww" "$src/target/release/xwww-daemon" /usr/local/bin/
+    if [[ -f "$src/completions/xwww.bash" ]]; then
+        sudo install -Dm644 "$src/completions/xwww.bash" /usr/local/share/bash-completion/completions/xwww
+    fi
+    if [[ -f "$src/completions/_xwww" ]]; then
+        sudo install -Dm644 "$src/completions/_xwww" /usr/local/share/zsh/site-functions/_xwww
+    fi
+    if [[ -f "$src/completions/xwww.fish" ]]; then
+        sudo install -Dm644 "$src/completions/xwww.fish" /usr/local/share/fish/vendor_completions.d/xwww.fish
+    fi
+
+    log "xwww installed from source: $(command -v xwww-daemon)"
+    return 0
+}
+
+install_xwww() {
+    if command -v xwww-daemon >/dev/null 2>&1 && [[ "${FORCE_XWWW:-0}" != "1" ]]; then
+        log "xwww-daemon already installed ($(command -v xwww-daemon)); skipping (FORCE_XWWW=1 to reinstall)"
+        return 0
+    fi
+
+    local arch; arch="$(xwww_release_arch)"
+    if [[ -z "$arch" ]] || ! install_xwww_release "$arch"; then
+        warn "xwww: prebuilt release unavailable; falling back to the source build"
+        if ! install_xwww_source; then
+            warn "xwww: installation failed; retry later with equisdots/dots scripts/install-xwww.sh"
+            return 1
+        fi
+    fi
 
     if pacman -Qq awww >/dev/null 2>&1; then
         warn "package 'awww' is installed; xwww-daemon wins on PATH."
