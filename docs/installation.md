@@ -29,6 +29,15 @@ Configures NVIDIA drivers (kernel parameters, mkinitcpio, DRM modeset, power man
 ```
 Deploys configuration files without package installation. Useful if packages are already installed or for manual setup.
 
+### Non-interactive
+```bash
+./install.sh -y
+```
+Answers the prompts with the recommended defaults (NVIDIA setup, kitty,
+starship, SDDM, monthly updater timer, service enablement). The 1.37 GB
+wallpaper pack is skipped: a minimal wallpaper option is planned, so it stays
+manual for now.
+
 ## What the Installer Does
 
 1. Detects your distribution and GPU vendor

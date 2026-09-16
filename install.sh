@@ -62,6 +62,19 @@ prompt() {
     echo -e "${CYAN}[?]${NC} $1"
 }
 
+# Read an answer; with -y/--yes the provided default is used without asking.
+# (Wallpapers default to "n": the pack is 1.37 GB and a minimal option is
+# planned, so a non-interactive run skips it.)
+read_answer() {
+    local var="$1" def="${2:-y}"
+    if [[ "${ASSUME_YES:-0}" = "1" ]]; then
+        printf -v "$var" '%s' "$def"
+        info "auto (-y): ${var}=${def}"
+    else
+        read -r "$var"
+    fi
+}
+
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ DISTRO DETECTION                                                                  │
 # └───────────────────────────────────────────────────────────────────────────────────┘
@@ -326,6 +339,9 @@ CORE_PACKAGES_ARCH=(
     "rofi-emoji"
     "radeontop"
 
+    # Display manager (the installer ships/repaints the SDDM theme)
+    "sddm"
+
     # System
     "pipewire"
     "pipewire-alsa"
@@ -498,7 +514,7 @@ configure_nvidia() {
     # GPU Mode Script Optional Setup
     echo ""
     prompt "Enable GPU Performance Mode script (adds sudoers rule for envycontrol)? [Y/n] "
-    read -r gpu_mode_response
+    read_answer gpu_mode_response y
     if [[ ! "$gpu_mode_response" =~ ^[Nn]$ ]]; then
         INSTALL_GPU_MODE=true
         log "Adding sudoers rule for GPU mode (envycontrol)..."
@@ -811,7 +827,7 @@ install_nvim_config() {
     if [ -d "$NVIM_DEST" ]; then
         warn "Existing nvim config found at $NVIM_DEST"
         prompt "Replace it? [Y/n] "
-        read -r replace_response
+        read_answer replace_response y
         if [[ "$replace_response" =~ ^[Nn]$ ]]; then
             log "Skipping nvim installation."
             return
@@ -907,7 +923,7 @@ download_wallpapers() {
     echo ""
     warn "The full wallpaper pack weighs approximately 1.37 GB."
     prompt "Download the complete wallpaper collection? [y/N] "
-    read -r wall_response
+    read_answer wall_response n
     if [[ ! "$wall_response" =~ ^[Yy]$ ]]; then
         log "Skipping wallpaper download."
         return
@@ -1040,7 +1056,7 @@ main() {
 
     # Confirm installation
     prompt "This will install Hyprland and its configuration. Continue? [y/N] "
-    read -r response
+    read_answer response y
     if [[ ! "$response" =~ ^[Yy]$ ]]; then
         echo "Installation cancelled."
         exit 0
@@ -1058,7 +1074,7 @@ main() {
             # NVIDIA specific setup
             if [ "$GPU_VENDOR" = "nvidia" ]; then
                 prompt "Configure NVIDIA drivers for Wayland? [Y/n] "
-                read -r nvidia_response
+                read_answer nvidia_response y
                 if [[ ! "$nvidia_response" =~ ^[Nn]$ ]]; then
                     configure_nvidia
                 else
@@ -1089,19 +1105,25 @@ main() {
     install_dotfiles
     write_version_state
 
+    # Monthly dotfiles check (systemd --user timer)
+    if [[ -f "$SCRIPT_DIR/scripts/dotfiles-update.sh" ]]; then
+        bash "$SCRIPT_DIR/scripts/dotfiles-update.sh" --install-timer >/dev/null 2>&1 \
+            || warn "could not install the monthly updater timer"
+    fi
+
     # Download wallpaper pack
     download_wallpapers
 
     # Install Kitty config
     prompt "Install custom Kitty configuration? [Y/n] "
-    read -r kitty_response
+    read_answer kitty_response y
     if [[ ! "$kitty_response" =~ ^[Nn]$ ]]; then
         install_kitty_config
     fi
 
     # Install Starship config
     prompt "Install custom Starship configuration? [Y/n] "
-    read -r starship_response
+    read_answer starship_response y
     if [[ ! "$starship_response" =~ ^[Nn]$ ]]; then
         install_starship_config
     fi
@@ -1114,9 +1136,12 @@ main() {
 
     # Install SDDM theme
     prompt "Install SDDM theme (matugen-minimal) and configure display manager? [y/N] "
-    read -r sddm_response
+    read_answer sddm_response y
     if [[ "$sddm_response" =~ ^[Yy]$ ]]; then
         install_sddm_theme
+        if command -v sddm >/dev/null 2>&1; then
+            sudo systemctl enable sddm.service 2>/dev/null || true
+        fi
     fi
 
     # Create directories
@@ -1128,6 +1153,9 @@ main() {
     # Enable core system services
     log "Enabling core system services..."
     sudo systemctl enable NetworkManager.service 2>/dev/null || true
+    if command -v bluetoothd >/dev/null 2>&1; then
+        sudo systemctl enable --now bluetooth.service 2>/dev/null || true
+    fi
     sudo systemctl enable --now power-profiles-daemon.service 2>/dev/null || true
     sudo systemctl enable --now swayosd-libinput-backend.service 2>/dev/null || true
     systemctl --user enable easyeffects.service 2>/dev/null || true
@@ -1174,10 +1202,18 @@ show_help() {
     echo "  -v, --version   Show version"
     echo "  --nvidia-only   Only configure NVIDIA (skip other installation)"
     echo "  --dotfiles-only Only install dotfiles (skip packages)"
+    echo "  -y, --yes       Non-interactive: recommended defaults (skips the 1.37 GB"
+    echo "                  wallpaper pack, which has a minimal option planned)"
     echo ""
 }
 
 # Parse arguments
+ASSUME_YES=0
+for _arg in "$@"; do
+    case "$_arg" in
+        -y|--yes) ASSUME_YES=1 ;;
+    esac
+done
 case "$1" in
     -h|--help)
         show_help
