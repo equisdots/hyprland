@@ -61,7 +61,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("playerctld")
 
     -- On-screen display
-    hl.exec_cmd("swayosd-server --top-margin 0.9 --style \"$HOME/.config/swayosd/style.css\"")
+    -- swayosd desactivado: duplicaba los OSD de brillo/volumen (el shell ya
+    -- muestra la notificacion). Reactivar si se prefiere su estilo propio.
+    -- hl.exec_cmd("swayosd-server --top-margin 0.9 --style \"$HOME/.config/swayosd/style.css\"")
 
     -- ┌───────────────────────────────────────────────────────────────────────┐
     -- │ UTILITIES                                                             │
