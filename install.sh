@@ -355,6 +355,7 @@ CORE_PACKAGES_ARCH=(
     "xdg-user-dirs"
     "wget"
     "curl"
+    "rsync"
     "gnome-keyring"
     "seahorse"
     "kwallet5"
