@@ -327,10 +327,9 @@ fi
 # ---------------------------------------------------------
 # PHASE 2: UI Trigger (Launch Standalone Quickshell Overlay)
 # ---------------------------------------------------------
-# Standalone Quickshell overlay. New shell layout: ui/; legacy shells had it
-# at the shell root. Keep both so old installs do not break.
-QML_PATH="$HOME/.config/hypr/scripts/quickshell/ui/ScreenshotOverlay.qml"
-[ -f "$QML_PATH" ] || QML_PATH="$HOME/.config/hypr/scripts/quickshell/ScreenshotOverlay.qml"
+# Standalone Quickshell overlay (root entry; legacy/new ui/ path as fallback).
+QML_PATH="$HOME/.config/hypr/scripts/quickshell/ScreenshotOverlay.qml"
+[ -f "$QML_PATH" ] || QML_PATH="$HOME/.config/hypr/scripts/quickshell/ui/ScreenshotOverlay.qml"
 
 if pgrep -f "quickshell -p $QML_PATH" > /dev/null; then
     pkill -f "quickshell -p $QML_PATH"
