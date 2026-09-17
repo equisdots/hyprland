@@ -73,7 +73,6 @@ resolve_repo() {
     cand="$(cd "$SCRIPT_DIR/.." 2>/dev/null && pwd)"
     if [ -n "$cand" ] && [ -d "$cand/.git" ]; then printf '%s\n' "$cand"; return; fi
     for cand in "$HOME/.local/share/equisdots/hyprland" \
-                "$HOME/Documents/xscriptor-colors/equisdots/repos/hyprland" \
                 "$HOME/hyprland"; do
         if [ -d "$cand/.git" ]; then printf '%s\n' "$cand"; return; fi
     done

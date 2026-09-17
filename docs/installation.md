@@ -33,10 +33,10 @@ Deploys configuration files without package installation. Useful if packages are
 ```bash
 ./install.sh -y
 ```
-Answers the prompts with the recommended defaults (NVIDIA setup, kitty,
-starship, login theme, monthly updater timer, service enablement). The 1.37 GB
-wallpaper pack is skipped: a minimal wallpaper option is planned, so it stays
-manual for now.
+Answers the prompts with the recommended defaults (NVIDIA setup, login theme,
+monthly updater timer, service enablement). The wallpaper collection
+(equisdots/background, release asset `background.zip`) is skipped, so it stays
+manual/optional.
 
 ## What the Installer Does
 
@@ -58,8 +58,8 @@ manual for now.
    - Blacklists nouveau
    - Enables NVIDIA power management services
    - Optional: passwordless sudo rule for envycontrol
-6. Downloads optional wallpaper collection (1.37 GB)
-7. Optionally installs Kitty config, the static login theme (equisdots/login, SDDM), Neovim config
+6. Downloads the optional wallpaper collection (equisdots/background release asset `background.zip`)
+7. Optionally installs the static login theme (equisdots/login, SDDM)
 8. Installs the shell payload through `equisdots/dots` (Quickshell UI, palettes,
    theme-sync, davincix, timex): runs `dots install` when available and fetches
    it on demand otherwise. Under `dots system` this step is skipped because the

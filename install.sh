@@ -356,6 +356,8 @@ CORE_PACKAGES_ARCH=(
     "wget"
     "curl"
     "rsync"
+    "git"
+    "base-devel"
     "gnome-keyring"
     "seahorse"
     "kwallet5"
@@ -541,7 +543,20 @@ backup_config() {
 
     for config in "${configs[@]}"; do
         if [ -d "$CONFIG_DIR/$config" ]; then
-            cp -r "$CONFIG_DIR/$config" "$BACKUP_DIR/"
+            if [ "$config" = "hypr" ]; then
+                # hypr/ holds the multi-GB wallpaper collection: copy
+                # everything else (settings, scripts, overrides) but never
+                # the wallpapers, or every backup weights >1 GB.
+                mkdir -p "$BACKUP_DIR/hypr"
+                local item
+                for item in "$CONFIG_DIR/hypr"/*; do
+                    [ -e "$item" ] || continue
+                    [ "$(basename "$item")" = "wallpapers" ] && continue
+                    cp -r "$item" "$BACKUP_DIR/hypr/"
+                done
+            else
+                cp -r "$CONFIG_DIR/$config" "$BACKUP_DIR/"
+            fi
             log "Backed up: $config"
         fi
     done
@@ -558,6 +573,13 @@ backup_config() {
         cp "$CONFIG_DIR/hypr/settings.json" "$BACKUP_DIR/hypr/settings.json"
         log "Backed up: hypr/settings.json"
     fi
+
+    # Retention: keep only the 5 most recent backups.
+    local old
+    while IFS= read -r old; do
+        rm -rf "$old"
+        log "Pruned old backup: $old"
+    done < <(ls -1dt "$HOME"/.config/hyprland-backup-* 2>/dev/null | tail -n +6)
 
     log "Backup created at: $BACKUP_DIR"
 }
@@ -641,14 +663,6 @@ install_dotfiles() {
         log "Installed cava config"
     fi
 
-    # Copy .zshrc from config/zsh/ if it exists
-    if [ -f "$SCRIPT_DIR/config/zsh/.zshrc" ]; then
-        mkdir -p "$CONFIG_DIR/zsh"
-        cp "$SCRIPT_DIR/config/zsh/.zshrc" "$CONFIG_DIR/zsh/.zshrc"
-        cp "$SCRIPT_DIR/config/zsh/.zshrc" "$HOME/.zshrc"
-        log "Installed .zshrc"
-    fi
-
     # Clean up GPU mode if user opted out
     if [ "$INSTALL_GPU_MODE" = "false" ]; then
         rm -f "$CONFIG_DIR/hypr/scripts/gpu-mode.sh"
@@ -670,84 +684,36 @@ install_dotfiles() {
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
-# │ INSTALL KITTY WITH CUSTOM CONFIG                                                  │
+# │ PATH: ~/.local/bin                                                                │
 # └───────────────────────────────────────────────────────────────────────────────────┘
+# `dots install` drops the dots/timex/davincix/theme-sync wrappers in
+# ~/.local/bin; make sure the interactive shells can find them.
 
-install_kitty_config() {
-    log "Installing Kitty configuration from xscriptor-colors/terminal..."
+ensure_local_bin_path() {
+    local line='export PATH="$HOME/.local/bin:$PATH"' rc added=0
 
-    if ! command -v git >/dev/null 2>&1; then
-        warn "git not found. Cannot clone xscriptor-colors/terminal."
-        warn "Install git and run: wget -qO- https://raw.githubusercontent.com/xscriptor-colors/terminal/main/emulators/kitty/install.sh | bash"
-        return
-    fi
+    for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+        [ -f "$rc" ] || continue
+        if ! grep -q '\.local/bin' "$rc"; then
+            printf '\n# equisdots: local bin\n%s\n' "$line" >> "$rc"
+            log "PATH: ~/.local/bin added to $rc"
+            added=1
+        fi
+    done
 
-    local TMP_DIR
-    TMP_DIR="$(mktemp -d)"
-    if ! git clone --depth 1 https://github.com/xscriptor-colors/terminal.git "$TMP_DIR/terminal" >/dev/null 2>&1; then
-        warn "Failed to clone xscriptor-colors/terminal."
-        rm -rf "$TMP_DIR"
-        return
-    fi
-
-    local KITTY_INSTALLER="$TMP_DIR/terminal/emulators/kitty/install.sh"
-    if [ -f "$KITTY_INSTALLER" ]; then
-        log "Running kitty installer (packages, font, themes, aliases)..."
-        bash "$KITTY_INSTALLER" || warn "Kitty installer finished with warnings (non-fatal)"
-        log "Kitty configuration installed from xscriptor-colors/terminal!"
-    else
-        warn "kitty installer not found in cloned repo."
-    fi
-    rm -rf "$TMP_DIR"
-
-    # Regenerate the kitty themes from the dock palettes (single source of
-    # truth): the terminal repo ships its own theme values, so we overwrite
-    # them right away to keep kitty consistent with the bar/borders.
-    if [ -f "$SCRIPT_DIR/scripts/theme-sync.sh" ]; then
-        bash "$SCRIPT_DIR/scripts/theme-sync.sh" || warn "Kitty theme sync failed (non-fatal)"
-        log "Kitty themes synced from the active palette"
+    if [ "$added" -eq 0 ] && [ ! -f "$HOME/.profile" ]; then
+        printf '# equisdots: local bin\n%s\n' "$line" > "$HOME/.profile"
+        log "PATH: created ~/.profile with ~/.local/bin"
     fi
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
-# │ INSTALL STARSHIP WITH CUSTOM CONFIG                                               │
+# │ APP CONFIGS (kitty, starship, neovim)                                             │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-
-install_starship_config() {
-    log "Installing Starship configuration from xscriptor-colors/terminal..."
-
-    if ! command -v git >/dev/null 2>&1; then
-        warn "git not found. Cannot clone xscriptor-colors/terminal."
-        warn "Install git and run: wget -qO- https://raw.githubusercontent.com/xscriptor-colors/terminal/main/prompts/starship/install.sh | bash"
-        return
-    fi
-
-    local TMP_DIR
-    TMP_DIR="$(mktemp -d)"
-    if ! git clone --depth 1 https://github.com/xscriptor-colors/terminal.git "$TMP_DIR/terminal" >/dev/null 2>&1; then
-        warn "Failed to clone xscriptor-colors/terminal."
-        rm -rf "$TMP_DIR"
-        return
-    fi
-
-    local STARSHIP_INSTALLER="$TMP_DIR/terminal/prompts/starship/install.sh"
-    if [ -f "$STARSHIP_INSTALLER" ]; then
-        log "Running starship installer (themes, shell function, STARSHIP_CONFIG)..."
-        bash "$STARSHIP_INSTALLER" || warn "Starship installer finished with warnings (non-fatal)"
-        log "Starship configuration installed from xscriptor-colors/terminal!"
-    else
-        warn "starship installer not found in cloned repo."
-    fi
-    rm -rf "$TMP_DIR"
-
-    # Regenerate the starship themes from the dock palettes (single source of
-    # truth) and write the fixed active config (~/.config/starship.toml), so
-    # the prompt follows the bar palette like kitty does.
-    if [ -f "$SCRIPT_DIR/scripts/theme-sync.sh" ]; then
-        bash "$SCRIPT_DIR/scripts/theme-sync.sh" || warn "Starship theme sync failed (non-fatal)"
-        log "Starship themes synced from the active palette"
-    fi
-}
+# The base kitty/starship/neovim configs are NOT cloned from third-party repos.
+# The equisdots/theme-sync engine themes whatever config the user already has
+# (kitty.conf, ~/.config/starship.toml, nvim theme modules); the shell palette
+# hook and `theme-sync` keep them in sync with the active palette.
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ INSTALL MATUGEN CONFIG                                                            │
@@ -760,7 +726,7 @@ install_starship_config() {
 install_hack_nerd_font() {
     log "Installing Hack Nerd Font..."
     local FONT_DIR="$HOME/.local/share/fonts"
-    local FONT_URL="https://raw.githubusercontent.com/xscriptor-colors/terminal/main/assets/fonts/HackNerdFont/HackNerdFont-Regular.ttf"
+    local FONT_URL="https://raw.githubusercontent.com/ryanoasis/nerd-fonts/master/patched-fonts/Hack/HackNerdFont-Regular.ttf"
     local FONT_PATH="$FONT_DIR/HackNerdFont-Regular.ttf"
 
     mkdir -p "$FONT_DIR"
@@ -799,50 +765,6 @@ install_hack_nerd_font() {
             warn "Run manually: sudo cp ~/.local/share/fonts/HackNerdFont-Regular.ttf /usr/share/fonts/ && sudo fc-cache -f"
         fi
     fi
-}
-
-# ┌───────────────────────────────────────────────────────────────────────────────────┐
-# │ INSTALL NVIM CONFIG                                                               │
-# └───────────────────────────────────────────────────────────────────────────────────┘
-
-install_nvim_config() {
-    local NVIM_DEST="$CONFIG_DIR/nvim"
-
-    log "Installing Neovim configuration from xscriptor-colors/nvim..."
-
-    if ! command -v git >/dev/null 2>&1; then
-        warn "git not found. Cannot clone nvim repo."
-        warn "Install git and run: git clone https://github.com/xscriptor-colors/nvim.git ~/.config/nvim"
-        return
-    fi
-
-    if [ -d "$NVIM_DEST" ]; then
-        warn "Existing nvim config found at $NVIM_DEST"
-        prompt "Replace it? [Y/n] "
-        read_answer replace_response y
-        if [[ "$replace_response" =~ ^[Nn]$ ]]; then
-            log "Skipping nvim installation."
-            return
-        fi
-        rm -rf "$NVIM_DEST"
-    fi
-
-    git clone --depth 1 https://github.com/xscriptor-colors/nvim.git "$NVIM_DEST" || {
-        error "Failed to clone xscriptor-colors/nvim."
-        return
-    }
-    log "Neovim configuration installed from xscriptor-colors/nvim!"
-
-    echo ""
-    echo -e "${YELLOW}╔══════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║                    NVIM POST-INSTALL STEPS                      ║${NC}"
-    echo -e "${YELLOW}╚══════════════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    echo -e "${CYAN}1.${NC} Open Neovim:  ${WHITE}nvim${NC}"
-    echo -e "${CYAN}2.${NC} Run Lazy to install plugins:  ${WHITE}:Lazy${NC}"
-    echo -e "${CYAN}3.${NC} Run Mason to install LSP servers:  ${WHITE}:Mason${NC}"
-    echo ""
-    echo -e "${BLUE}Refer to the nvim README for more details.${NC}"
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -904,56 +826,58 @@ install_user_payload() {
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
-# │ DOWNLOAD WALLPAPERS                                                               │
+# │ WALLPAPERS (equisdots/background releases)                                        │
 # └───────────────────────────────────────────────────────────────────────────────────┘
+# The wallpaper collection lives in the equisdots/background repo and is published
+# as a release asset named `background.zip` (stable name, so
+# /releases/latest/download/background.zip keeps working across releases).
+# Content: images (jpg/png/webp) and/or videos (mp4/webm/mov/mkv), either at the
+# zip root or inside a single top-level folder. Users can also drop their own
+# files in ~/.config/hypr/wallpapers.
 
 download_wallpapers() {
     local WALLPAPER_DIR="$CONFIG_DIR/hypr/wallpapers"
-    local WALLPAPER_URL="https://github.com/xscriptor/xwall/releases/download/1.0.0/xwall-1.0.0.zip"
-    local TMP_ZIP="/tmp/xwall-1.0.0.zip"
-    local TMP_EXTRACT="/tmp/xwall-extract"
+    local WALLPAPER_URL="https://github.com/equisdots/background/releases/latest/download/background.zip"
+    local TMP_ZIP TMP_EXTRACT
+    TMP_ZIP="$(mktemp --suffix=.zip)"
+    TMP_EXTRACT="$(mktemp -d)"
 
     echo ""
-    warn "The full wallpaper pack weighs approximately 1.37 GB."
-    prompt "Download the complete wallpaper collection? [y/N] "
+    prompt "Download the wallpaper collection (equisdots/background)? [y/N] "
     read_answer wall_response n
     if [[ ! "$wall_response" =~ ^[Yy]$ ]]; then
-        log "Skipping wallpaper download."
+        log "Skipping wallpaper download (you can drop your own files in $WALLPAPER_DIR)."
         return
     fi
 
-    log "Downloading wallpaper pack (1.37 GB)... This may take a while."
+    log "Downloading wallpaper pack..."
     if ! wget --progress=bar:force -O "$TMP_ZIP" "$WALLPAPER_URL"; then
-        error "Failed to download wallpaper pack."
-        rm -f "$TMP_ZIP"
+        error "Failed to download the wallpaper pack (missing release asset background.zip?)."
+        rm -f "$TMP_ZIP"; rm -rf "$TMP_EXTRACT"
         return
     fi
 
     log "Extracting wallpapers..."
-    mkdir -p "$TMP_EXTRACT"
     if ! unzip -qo "$TMP_ZIP" -d "$TMP_EXTRACT"; then
-        error "Failed to extract wallpaper pack."
-        rm -rf "$TMP_ZIP" "$TMP_EXTRACT"
+        error "Failed to extract the wallpaper pack."
+        rm -f "$TMP_ZIP"; rm -rf "$TMP_EXTRACT"
         return
     fi
 
-    # The zip contains a folder named "xwall-1,0,0" — move its contents into the wallpapers dir
     mkdir -p "$WALLPAPER_DIR"
     local INNER_DIR
     INNER_DIR=$(find "$TMP_EXTRACT" -mindepth 1 -maxdepth 1 -type d | head -n 1)
 
-    if [ -n "$INNER_DIR" ] && [ -d "$INNER_DIR" ]; then
+    if [ -n "$INNER_DIR" ] && [ "$(find "$TMP_EXTRACT" -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ]; then
+        # Single top-level folder inside the zip: flatten it.
         cp -r "$INNER_DIR/"* "$WALLPAPER_DIR/"
-        log "Wallpapers installed to $WALLPAPER_DIR ($(ls -1 "$INNER_DIR" | wc -l) files)"
     else
-        # Fallback: copy everything directly
         cp -r "$TMP_EXTRACT/"* "$WALLPAPER_DIR/"
-        log "Wallpapers installed to $WALLPAPER_DIR"
     fi
 
-    # Cleanup
-    rm -rf "$TMP_ZIP" "$TMP_EXTRACT"
-    log "Wallpaper download complete!"
+    log "Wallpapers installed to $WALLPAPER_DIR ($(find "$WALLPAPER_DIR" -type f | wc -l) files)"
+    rm -f "$TMP_ZIP"
+    rm -rf "$TMP_EXTRACT"
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -964,6 +888,7 @@ create_directories() {
     log "Creating necessary directories..."
     mkdir -p "$HOME/Pictures/Screenshots"
     mkdir -p "$HOME/Pictures/Wallpapers"
+    mkdir -p "$CONFIG_DIR/hypr/wallpapers"
 }
 
 check_requirements() {
@@ -1114,28 +1039,11 @@ main() {
             || warn "could not install the monthly updater timer"
     fi
 
-    # Download wallpaper pack
+    # Optional wallpaper collection (equisdots/background release asset)
     download_wallpapers
 
-    # Install Kitty config
-    prompt "Install custom Kitty configuration? [Y/n] "
-    read_answer kitty_response y
-    if [[ ! "$kitty_response" =~ ^[Nn]$ ]]; then
-        install_kitty_config
-    fi
-
-    # Install Starship config
-    prompt "Install custom Starship configuration? [Y/n] "
-    read_answer starship_response y
-    if [[ ! "$starship_response" =~ ^[Nn]$ ]]; then
-        install_starship_config
-    fi
-
-    # Install Hack Nerd Font
+    # Hack Nerd Font (UI glyphs + SDDM)
     install_hack_nerd_font
-
-    # Install Neovim configuration
-    install_nvim_config
 
     # Install the static login theme (equisdots/login) and configure SDDM
     prompt "Install the static login theme (equisdots/login) and configure SDDM? [y/N] "
@@ -1166,6 +1074,7 @@ main() {
     configure_pam_lock || warn "PAM setup failed; the lock screen will not accept passwords (retry: dots system)"
 
     check_requirements
+    ensure_local_bin_path
 
     # Final message
     echo ""
@@ -1239,12 +1148,10 @@ case "$1" in
         install_dotfiles
         write_version_state
         install_user_payload
-        install_kitty_config
-        install_starship_config
         install_hack_nerd_font
-        install_nvim_config
         create_directories
         check_requirements
+        ensure_local_bin_path
         log "Dotfiles installed!"
         exit 0
         ;;

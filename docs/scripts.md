@@ -13,10 +13,9 @@ All scripts reside in the repository root `scripts/` directory and are deployed 
 
 ## Theming
 
-| Script | Purpose |
+| Script / repo | Purpose |
 |--------|---------|
-| `theme-sync.sh` | Thin wrapper over the `themesync/` Python package. Called by `dock/Colors.qml` (palette-change hook), `install.sh` and `reload.sh`; the entry point never changes. |
-| `themesync/` | Modular theming engine. `core.py` holds the shared pieces (palette loading, color math, atomic writes, managed blocks, binary resolution with `~/.local/bin` fallback), `runner.py` orchestrates targets and `cli.py` parses flags (`--list`, `--dry-run`, `--targets`). One module per application in `themesync/targets/`: `kitty`, `starship`, `xtop`, `vscode`, `nvim`, `browsers`, `opencode`, `rofi`, `cava`, `qt`, `gtk`, `xfetch`. |
+| [`equisdots/theme-sync`](https://github.com/equisdots/theme-sync) | Modular theming engine (`themesync/` Python package: `core.py`, `runner.py`, `cli.py` + one module per application in `themesync/targets/`: `kitty`, `starship`, `xtop`, `vscode`, `nvim`, `browsers`, `opencode`, `rofi`, `cava`, `qt`, `gtk`, `xfetch`). Installed by `dots` under `~/.local/share/equisdots/theme-sync` with a `~/.local/bin/theme-sync` wrapper; called by the shell palette hook (`ui/bar/Colors.qml`) and `reload.sh`. |
 
 ## UI Scripts
 
