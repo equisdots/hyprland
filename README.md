@@ -44,7 +44,7 @@ chmod +x install.sh
 
 <p><strong>Options:</strong> <code>--dotfiles-only</code> (config only), <code>--nvidia-only</code> (NVIDIA setup only).</p>
 
-<p>The installer detects your distro and GPU, installs packages (Hyprland, kitty, rofi, and more), backs up existing configs, deploys the dotfiles, optionally configures NVIDIA Optimus and installs the SDDM theme. Kitty, starship and Neovim follow the palette through <a href="https://github.com/equisdots/theme-sync">equisdots/theme-sync</a> (any base config the user already has is themed in place; nothing is cloned from third-party repos). The Quickshell shell, the palettes and the engines come from the org repos through <a href="https://github.com/equisdots/dots">equisdots/dots</a>: the installer runs <code>dots install</code> for you (fetching it on demand), so a single <code>./install.sh</code> leaves a complete desktop.</p>
+<p>The installer detects your distro and GPU, installs packages (Hyprland, kitty, rofi, and more), backs up existing configs, deploys the dotfiles, optionally configures NVIDIA Optimus and installs the SDDM theme, and installs kitty / Neovim from their own repos (`xscriptor-colors/terminal`, `xscriptor-colors/nvim`). Kitty, starship and Neovim then follow the palette through <a href="https://github.com/equisdots/theme-sync">equisdots/theme-sync</a>. The Quickshell shell, the palettes and the engines come from the org repos through <a href="https://github.com/equisdots/dots">equisdots/dots</a>: the installer runs <code>dots install</code> for you (fetching it on demand), so a single <code>./install.sh</code> leaves a complete desktop.</p>
 
 <hr>
 
@@ -83,7 +83,7 @@ chmod +x install.sh
 <h2>Structure</h2>
 
 <pre><code>hyprland/
-  install.sh                  Automated installer (system stack + user payload)
+  install.sh                  Automated installer (installs kitty/nvim from their repos)
   uninstall.sh                Config removal
   config/hypr/                Hyprland Lua configs (hyprland.lua + modules,
                               hypridle.conf)
@@ -103,7 +103,7 @@ chmod +x install.sh
   <li><a href="docs/scripts.md">Scripts</a> -- All shell scripts and daemons</li>
   <li><a href="docs/hyprland-config.md">Hyprland Configuration</a> -- Modular config structure and dynamic reload</li>
   <li><a href="docs/screenshot-recording.md">Screenshots &amp; Recording</a> -- Capture system with virtual audio</li>
-  <li><a href="docs/neovim-config.md">Neovim Configuration</a> -- Palette-driven theming of the user's Neovim config (equisdots/theme-sync)</li>
+  <li><a href="docs/neovim-config.md">Neovim Configuration</a> -- Editor setup from `xscriptor-colors/nvim` (palettes from the shell panel)</li>
   <li><a href="docs/multi-monitor.md">Multi-Monitor Setup</a> -- Display configuration guide</li>
   <li><a href="docs/gpu-mode.md">GPU Mode Switching</a> -- NVIDIA Optimus control</li>
 </ul>
@@ -125,5 +125,8 @@ chmod +x install.sh
   <li><a href="https://github.com/equisdots/dots">dots</a> - meta installer and updater</li>
   <li><a href="https://github.com/equisdots/timex">timex</a> - time, weather and calendar engine</li>
   <li><a href="https://github.com/equisdots/login">login</a> - static SDDM greeter</li>
+  <li><a href="https://github.com/xscriptor-colors/terminal">Terminal</a> - Kitty + Starship synchronized dotfiles</li>
+  <li><a href="https://github.com/xscriptor-colors/nvim">Nvim</a> - synchronized dotfiles</li>
+  <li><a href="https://github.com/xscriptor-colors/vscode">VSCode</a> - synchronized dotfiles</li>
   <li><a href="https://github.com/xfetch-cli/">XFetch</a> - terminal tool shown in the previews</li>
 </ul>

@@ -710,14 +710,124 @@ ensure_local_bin_path() {
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ APP CONFIGS (kitty, starship, neovim)                                             │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-# The base kitty/starship/neovim configs are NOT cloned from third-party repos.
-# The equisdots/theme-sync engine themes whatever config the user already has
-# (kitty.conf, ~/.config/starship.toml, nvim theme modules); the shell palette
-# hook and `theme-sync` keep them in sync with the active palette.
+# The base configs come from the sibling xscriptor-colors ecosystem (terminal +
+# nvim repos). The equisdots/theme-sync engine then regenerates the palette
+# themes so kitty/starship/nvim follow the bar palette.
 
-# ┌───────────────────────────────────────────────────────────────────────────────────┐
-# │ INSTALL MATUGEN CONFIG                                                            │
-# └───────────────────────────────────────────────────────────────────────────────────┘
+# Runs the equisdots/theme-sync engine (installed by `dots install`).
+theme_sync_run() {
+    local engine="${XDG_DATA_HOME:-$HOME/.local/share}/equisdots/theme-sync/theme-sync.sh"
+    [ -x "$engine" ] || engine="$HOME/.local/bin/theme-sync"
+    if [ -x "$engine" ] || command -v "$engine" >/dev/null 2>&1; then
+        bash "$engine" || warn "theme sync failed (non-fatal)"
+    else
+        warn "theme-sync engine not installed yet; run: dots install"
+    fi
+}
+
+install_kitty_config() {
+    log "Installing Kitty configuration from xscriptor-colors/terminal..."
+
+    if ! command -v git >/dev/null 2>&1; then
+        warn "git not found. Cannot clone xscriptor-colors/terminal."
+        warn "Install git and run: wget -qO- https://raw.githubusercontent.com/xscriptor-colors/terminal/main/emulators/kitty/install.sh | bash"
+        return
+    fi
+
+    local TMP_DIR
+    TMP_DIR="$(mktemp -d)"
+    if ! git clone --depth 1 https://github.com/xscriptor-colors/terminal.git "$TMP_DIR/terminal" >/dev/null 2>&1; then
+        warn "Failed to clone xscriptor-colors/terminal."
+        rm -rf "$TMP_DIR"
+        return
+    fi
+
+    local KITTY_INSTALLER="$TMP_DIR/terminal/emulators/kitty/install.sh"
+    if [ -f "$KITTY_INSTALLER" ]; then
+        log "Running kitty installer (packages, font, themes, aliases)..."
+        bash "$KITTY_INSTALLER" || warn "Kitty installer finished with warnings (non-fatal)"
+        log "Kitty configuration installed from xscriptor-colors/terminal!"
+    else
+        warn "kitty installer not found in cloned repo."
+    fi
+    rm -rf "$TMP_DIR"
+
+    # Regenerate the kitty themes from the palettes: the terminal repo ships
+    # its own theme values, so we overwrite them with the active palette.
+    theme_sync_run
+}
+
+install_starship_config() {
+    log "Installing Starship configuration from xscriptor-colors/terminal..."
+
+    if ! command -v git >/dev/null 2>&1; then
+        warn "git not found. Cannot clone xscriptor-colors/terminal."
+        warn "Install git and run: wget -qO- https://raw.githubusercontent.com/xscriptor-colors/terminal/main/prompts/starship/install.sh | bash"
+        return
+    fi
+
+    local TMP_DIR
+    TMP_DIR="$(mktemp -d)"
+    if ! git clone --depth 1 https://github.com/xscriptor-colors/terminal.git "$TMP_DIR/terminal" >/dev/null 2>&1; then
+        warn "Failed to clone xscriptor-colors/terminal."
+        rm -rf "$TMP_DIR"
+        return
+    fi
+
+    local STARSHIP_INSTALLER="$TMP_DIR/terminal/prompts/starship/install.sh"
+    if [ -f "$STARSHIP_INSTALLER" ]; then
+        log "Running starship installer (themes, shell function, STARSHIP_CONFIG)..."
+        bash "$STARSHIP_INSTALLER" || warn "Starship installer finished with warnings (non-fatal)"
+        log "Starship configuration installed from xscriptor-colors/terminal!"
+    else
+        warn "starship installer not found in cloned repo."
+    fi
+    rm -rf "$TMP_DIR"
+
+    # Regenerate the starship themes and the fixed active config, so the prompt
+    # follows the bar palette like kitty does.
+    theme_sync_run
+}
+
+install_nvim_config() {
+    local NVIM_DEST="$CONFIG_DIR/nvim"
+
+    log "Installing Neovim configuration from xscriptor-colors/nvim..."
+
+    if ! command -v git >/dev/null 2>&1; then
+        warn "git not found. Cannot clone nvim repo."
+        warn "Install git and run: git clone https://github.com/xscriptor-colors/nvim.git ~/.config/nvim"
+        return
+    fi
+
+    if [ -d "$NVIM_DEST" ]; then
+        warn "Existing nvim config found at $NVIM_DEST"
+        prompt "Replace it? [Y/n] "
+        read_answer replace_response y
+        if [[ "$replace_response" =~ ^[Nn]$ ]]; then
+            log "Skipping nvim installation."
+            return
+        fi
+        rm -rf "$NVIM_DEST"
+    fi
+
+    git clone --depth 1 https://github.com/xscriptor-colors/nvim.git "$NVIM_DEST" || {
+        error "Failed to clone xscriptor-colors/nvim."
+        return
+    }
+    log "Neovim configuration installed from xscriptor-colors/nvim!"
+
+    echo ""
+    echo -e "${YELLOW}╔══════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}║                    NVIM POST-INSTALL STEPS                      ║${NC}"
+    echo -e "${YELLOW}╚══════════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${CYAN}1.${NC} Open Neovim:  ${WHITE}nvim${NC}"
+    echo -e "${CYAN}2.${NC} Run Lazy to install plugins:  ${WHITE}:Lazy${NC}"
+    echo -e "${CYAN}3.${NC} Run Mason to install LSP servers:  ${WHITE}:Mason${NC}"
+    echo ""
+    echo -e "${BLUE}Refer to the nvim README for more details.${NC}"
+}
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ INSTALL HACK NERD FONT                                                            │
@@ -1042,8 +1152,24 @@ main() {
     # Optional wallpaper collection (equisdots/background release asset)
     download_wallpapers
 
+    # Base app configs (xscriptor-colors ecosystem) + palette theming
+    prompt "Install custom Kitty configuration? [Y/n] "
+    read_answer kitty_response y
+    if [[ ! "$kitty_response" =~ ^[Nn]$ ]]; then
+        install_kitty_config
+    fi
+
+    prompt "Install custom Starship configuration? [Y/n] "
+    read_answer starship_response y
+    if [[ ! "$starship_response" =~ ^[Nn]$ ]]; then
+        install_starship_config
+    fi
+
     # Hack Nerd Font (UI glyphs + SDDM)
     install_hack_nerd_font
+
+    # Install Neovim configuration
+    install_nvim_config
 
     # Install the static login theme (equisdots/login) and configure SDDM
     prompt "Install the static login theme (equisdots/login) and configure SDDM? [y/N] "
@@ -1148,7 +1274,10 @@ case "$1" in
         install_dotfiles
         write_version_state
         install_user_payload
+        install_kitty_config
+        install_starship_config
         install_hack_nerd_font
+        install_nvim_config
         create_directories
         check_requirements
         ensure_local_bin_path
