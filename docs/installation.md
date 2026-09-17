@@ -43,7 +43,7 @@ manual for now.
 1. Detects your distribution and GPU vendor
 2. Installs required packages via AUR helper (yay/paru):
    - Hyprland and its Wayland ecosystem (xdg-desktop-portal, qt5/6-wayland, polkit)
-   - QuickShell (QML shell), Matugen (color generation), SwayOSD (on-screen display)
+   - QuickShell (QML shell), SwayOSD (on-screen display)
    - Utilities: kitty, dunst, grim, slurp, cliphist, gpu-screen-recorder, rofi, cava, and more
    - xwww: built from source (fork of awww with extra transitions) and installed to `/usr/local/bin` — the upstream `awww` package is not used
    - Fonts: Hack Nerd Font (downloaded separately), Noto Fonts, Noto Emoji
@@ -60,7 +60,10 @@ manual for now.
    - Optional: passwordless sudo rule for envycontrol
 6. Downloads optional wallpaper collection (1.37 GB)
 7. Optionally installs Kitty config, the static login theme (equisdots/login, SDDM), Neovim config
-8. Generates initial Matugen color scheme from first wallpaper
+8. Installs the shell payload through `equisdots/dots` (Quickshell UI, palettes,
+   theme-sync, davincix, timex): runs `dots install` when available and fetches
+   it on demand otherwise. Under `dots system` this step is skipped because the
+   meta installer runs it right after.
 9. Enables system services (NetworkManager, power-profiles-daemon, swayosd, pipewire, wireplumber)
 
 ## Uninstallation
@@ -78,7 +81,8 @@ Removes all deployed configuration files and the login theme (delegated to equis
 - Default terminal: SUPER + Return
 - App launcher: SUPER + D
 
-The first boot will initialize the wallpaper daemon, generate Matugen colors, and start all background services automatically.
+The first boot will initialize the wallpaper daemon (davincix + xwww), pick a
+random wallpaper and start all background services automatically.
 
 ## Wallpaper stack
 

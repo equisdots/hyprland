@@ -44,7 +44,7 @@ chmod +x install.sh
 
 <p><strong>Options:</strong> <code>--dotfiles-only</code> (config only), <code>--nvidia-only</code> (NVIDIA setup only).</p>
 
-<p>The installer detects your distro and GPU, installs packages (Hyprland, kitty, rofi, and more), backs up existing configs, deploys the dotfiles, optionally configures NVIDIA Optimus, installs the SDDM theme, and installs kitty / Neovim from their own repos (`xscriptor-colors/terminal`, `xscriptor-colors/nvim`).</p>
+<p>The installer detects your distro and GPU, installs packages (Hyprland, kitty, rofi, and more), backs up existing configs, deploys the dotfiles, optionally configures NVIDIA Optimus, installs the SDDM theme, and installs kitty / Neovim from their own repos (`xscriptor-colors/terminal`, `xscriptor-colors/nvim`). The Quickshell shell, the palettes and the engines come from the org repos through <a href="https://github.com/equisdots/dots">equisdots/dots</a>: the installer runs <code>dots install</code> for you (fetching it on demand), so a single <code>./install.sh</code> leaves a complete desktop.</p>
 
 <hr>
 
@@ -52,11 +52,11 @@ chmod +x install.sh
 
 <ul>
   <li><strong>Lua Config</strong> -- Hyprland 0.55+ <code>hyprland.lua</code> modular config (env, colors, keybinds, animations, rules, autostart) driven by the active palette.</li>
-  <li><strong>12-Palette Theming</strong> -- <code>dock/palettes</code> drive the bar (equisdots/shell), window borders, kitty, starship, VS Code (color + icons), SDDM and Neovim in real time via <code>theme-sync.sh</code>.</li>
+  <li><strong>12-Palette Theming</strong> -- <code>dock/palettes</code> drive the bar (equisdots/shell), window borders, kitty, starship, VS Code (color + icons) and Neovim in real time via <code>theme-sync.sh</code>.</li>
   <li><strong>System Scripts</strong> -- Session helpers: screenshots and recording, scale menu, monitor manager, GPU modes, idle modes, lock, reload and the monthly updater.</li>
   <li><strong>NVIDIA Optimus</strong> -- GPU mode switching (integrated/hybrid/nvidia) via keybind or Rofi.</li>
   <li><strong>Multi-Monitor</strong> -- Auto-detection at max refresh rate (Lua wildcard), Rofi-based position/resolution/refresh rate manager.</li>
-  <li><strong>SDDM Theme</strong> -- <code>x</code> theme synced to the active palette with dynamic wallpaper background.</li>
+  <li><strong>Static SDDM Login</strong> -- minimal black/white greeter from <a href="https://github.com/equisdots/login">equisdots/login</a> (no palette sync, no runtime sudo); window borders and the lock follow the palette instead.</li>
   <li><strong>Screen Recording</strong> -- GPU capture with separate desktop/mic audio channels.</li>
 </ul>
 
@@ -85,11 +85,11 @@ chmod +x install.sh
 <pre><code>hyprland/
   install.sh                  Automated installer (installs kitty/nvim from their repos)
   uninstall.sh                Config removal
-  config/hypr/                Hyprland Lua configs (hyprland.lua + modules)
+  config/hypr/                Hyprland Lua configs (hyprland.lua + modules,
+                              hypridle.conf)
   config/rofi/                Launcher themes
   config/dunst/               Notification daemon
   config/cava/                Audio visualizer
-  config/hypridle/            Idle management (dim, lock, suspend)
   config/pam.d/               PAM service for the quickshell lock screen
   scripts/                    Shell scripts and daemons (theme-sync.sh, lock.sh)</code></pre>
 

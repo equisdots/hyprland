@@ -89,10 +89,12 @@ fi
 # -----------------------------------------------------------------------------
 # HELPERS
 # -----------------------------------------------------------------------------
-# La preparación de miniaturas vive en davincix/kernel/thumbs.sh;
-# aquí solo se lanza en segundo plano.
+# El kernel de davincix vive en su propio repo (dots lo instala bajo
+# ~/.local/share/equisdots/davincix); aquí solo se lanza en segundo plano.
+DAVINCIX_KERNEL="${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davincix}/davincix.sh"
 handle_wallpaper_prep() {
-    bash "$SCRIPTS_DIR/davincix/kernel/davincix.sh" thumbs &
+    [ -f "$DAVINCIX_KERNEL" ] || return 0
+    bash "$DAVINCIX_KERNEL" thumbs &
 }
 
 handle_network_prep() {
@@ -140,7 +142,8 @@ if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
 
     if [[ "$TARGET" == "wallpaper" ]]; then
         handle_wallpaper_prep
-        TARGET_THUMB="$(bash "$SCRIPTS_DIR/davincix/kernel/davincix.sh" current --thumb-name 2>/dev/null)"
+        TARGET_THUMB=""
+        [ -f "$DAVINCIX_KERNEL" ] && TARGET_THUMB="$(bash "$DAVINCIX_KERNEL" current --thumb-name 2>/dev/null)"
 
         $QS -p "$SHELL_QML_PATH" ipc call main handleCommand "$ACTION" "$TARGET" "$TARGET_THUMB" >/dev/null 2>&1
     else

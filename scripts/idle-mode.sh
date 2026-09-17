@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Idle / auto-lock control.
 #
-#   idle-mode.sh awake   -> nothing auto-dims, locks or suspends; manual only
+#   idle-mode.sh awake   -> nothing auto-locks or suspends; manual only
 #                            (SUPER+L lock, SUPER+CTRL+L suspend)
-#   idle-mode.sh normal  -> hypridle timers back on (dim/lock/display/suspend)
+#   idle-mode.sh normal  -> hypridle timers back on (lock/suspend)
 #   idle-mode.sh boot    -> called from autostart.lua: honors the saved mode
 #   idle-mode.sh status  -> prints awake|normal
 #
 # "Keep awake" simply stops the hypridle daemon, which is the only source of
-# auto-dimming/locking/suspending here, so the machine never locks by itself.
+# auto-locking/suspending here, so the machine never locks by itself.
 # The choice is stored in ~/.config/hypr/idle-settings.json and restored on
 # every login (idle-mode.sh boot replaces the plain `hypridle` autostart).
 
@@ -48,7 +48,7 @@ case "$1" in
         ensure_state
         printf '{"idleMode":"normal"}' > "$STATE"
         start_idle
-        notify "Auto mode: dim/lock/suspend per hypridle.conf"
+        notify "Auto mode: lock/suspend per hypridle.conf"
         ;;
     boot)
         ensure_state

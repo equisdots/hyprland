@@ -596,12 +596,9 @@ install_dotfiles() {
         find "$CONFIG_DIR/hypr/scripts" -type f -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
     fi
 
-    # Copy quickshell scripts
-    if [ -d "$SCRIPT_DIR/config/hypr/scripts/quickshell" ]; then
-        mkdir -p "$CONFIG_DIR/hypr/scripts/quickshell"
-        cp -r "$SCRIPT_DIR/config/hypr/scripts/quickshell/"* "$CONFIG_DIR/hypr/scripts/quickshell/"
-        log "Installed quickshell scripts"
-    fi
+    # The Quickshell shell (bar, panels, editor, lock) lives in its own repo
+    # (equisdots/shell) and is placed by `dots install`; standalone runs
+    # delegate through install_user_payload() after the dotfiles are in place.
 
     # Copy hypr config/ subdirectory files (runtime override modules for the
     # Window Controls widget: config/window-effects.lua, config/gaps.lua)
@@ -641,12 +638,6 @@ install_dotfiles() {
         mkdir -p "$CONFIG_DIR/cava"
         cp -r "$SCRIPT_DIR/config/cava/"* "$CONFIG_DIR/cava/"
         log "Installed cava config"
-    fi
-
-    # Copy Hypridle config (goes to ~/.config/hypr/)
-    if [ -f "$SCRIPT_DIR/config/hypridle/hypridle.conf" ]; then
-        cp "$SCRIPT_DIR/config/hypridle/hypridle.conf" "$CONFIG_DIR/hypr/"
-        log "Installed hypridle.conf"
     fi
 
     # Copy .zshrc from config/zsh/ if it exists
@@ -875,6 +866,43 @@ install_login_theme() {
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
+# │ INSTALL USER PAYLOAD (shell, palettes, engines) — via equisdots/dots              │
+# └───────────────────────────────────────────────────────────────────────────────────┘
+# The Quickshell UI, the palettes, theme-sync, davincix and timex live in their
+# own repos of the org; `dots install` clones and places them. When this
+# installer runs under `dots system`, dots runs `dots install` right after, so
+# the payload is skipped here (guard). A standalone ./install.sh still leaves a
+# complete desktop: dots is reused if present, otherwise fetched on demand.
+install_user_payload() {
+    if [ -f "$CONFIG_DIR/hypr/scripts/quickshell/Shell.qml" ]; then
+        log "Quickshell shell already present (update it with: dots install)"
+        return 0
+    fi
+
+    local dots_bin=""
+    if command -v dots >/dev/null 2>&1; then
+        dots_bin="$(command -v dots)"
+    elif [ -x "$HOME/.local/bin/dots" ]; then
+        dots_bin="$HOME/.local/bin/dots"
+    elif [ -x "$SCRIPT_DIR/../dots/dots" ]; then
+        dots_bin="$SCRIPT_DIR/../dots/dots"
+    fi
+
+    if [ -z "$dots_bin" ]; then
+        log "Shell not installed; fetching equisdots/dots to place the full payload..."
+        local dots_dir="${XDG_DATA_HOME:-$HOME/.local/share}/equisdots/dots"
+        if git clone --depth 1 https://github.com/equisdots/dots "$dots_dir" --quiet 2>/dev/null; then
+            dots_bin="$dots_dir/dots"
+        else
+            warn "could not fetch equisdots/dots; install the shell later with: dots install"
+            return 0
+        fi
+    fi
+
+    bash "$dots_bin" install || warn "dots install finished with warnings"
+}
+
+# ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ DOWNLOAD WALLPAPERS                                                               │
 # └───────────────────────────────────────────────────────────────────────────────────┘
 
@@ -1069,9 +1097,18 @@ main() {
     install_dotfiles
     write_version_state
 
-    # Monthly dotfiles check (systemd --user timer)
-    if [[ -f "$SCRIPT_DIR/scripts/dotfiles-update.sh" ]]; then
-        bash "$SCRIPT_DIR/scripts/dotfiles-update.sh" --install-timer >/dev/null 2>&1 \
+    # Shell + palettes + engines (dots install). Under `dots system` the meta
+    # installer runs the payload itself right after this script returns.
+    if [ "${DOTS_SYSTEM_RUN:-0}" = "1" ]; then
+        log "shell payload: handled by 'dots install' (running under dots system)"
+    else
+        install_user_payload
+    fi
+
+    # Monthly dotfiles check (systemd --user timer). Register the INSTALLED
+    # copy so the unit never points at the clone or the workspace.
+    if [[ -x "$CONFIG_DIR/hypr/scripts/dotfiles-update.sh" ]]; then
+        bash "$CONFIG_DIR/hypr/scripts/dotfiles-update.sh" --install-timer >/dev/null 2>&1 \
             || warn "could not install the monthly updater timer"
     fi
 
@@ -1199,6 +1236,7 @@ case "$1" in
         backup_config
         install_dotfiles
         write_version_state
+        install_user_payload
         install_kitty_config
         install_starship_config
         install_hack_nerd_font

@@ -48,6 +48,10 @@ fi
 
 # Remove configs
 echo "Removing configuration files..."
+# Monthly updater timer (user unit) before the script disappears.
+if [ -x "$CONFIG_DIR/hypr/scripts/dotfiles-update.sh" ]; then
+    bash "$CONFIG_DIR/hypr/scripts/dotfiles-update.sh" --uninstall-timer >/dev/null 2>&1 || true
+fi
 rm -rf "$CONFIG_DIR/hypr"
 rm -rf "$CONFIG_DIR/rofi"
 rm -rf "$CONFIG_DIR/dunst"
