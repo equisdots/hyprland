@@ -90,8 +90,8 @@ chmod +x install.sh
   config/dunst/               Notification daemon
   config/cava/                Audio visualizer
   config/hypridle/            Idle management (dim, lock, suspend)
-  config/sddm/                SDDM login theme (x, palette-synced)
-  scripts/                    Shell scripts and daemons (theme-sync.sh, sddm-colors.sh)</code></pre>
+  config/pam.d/               PAM service for the quickshell lock screen
+  scripts/                    Shell scripts and daemons (theme-sync.sh, lock.sh)</code></pre>
 
 <hr>
 

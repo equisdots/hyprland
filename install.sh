@@ -339,7 +339,7 @@ CORE_PACKAGES_ARCH=(
     "rofi-emoji"
     "radeontop"
 
-    # Display manager (the installer ships/repaints the SDDM theme)
+    # Display manager (the login theme comes from the sibling login repo)
     "sddm"
 
     # System
@@ -710,7 +710,7 @@ install_kitty_config() {
 
     # Regenerate the kitty themes from the dock palettes (single source of
     # truth): the terminal repo ships its own theme values, so we overwrite
-    # them right away to keep kitty consistent with the bar/borders/SDDM.
+    # them right away to keep kitty consistent with the bar/borders.
     if [ -f "$SCRIPT_DIR/scripts/theme-sync.sh" ]; then
         bash "$SCRIPT_DIR/scripts/theme-sync.sh" || warn "Kitty theme sync failed (non-fatal)"
         log "Kitty themes synced from the active palette"
@@ -854,60 +854,24 @@ install_nvim_config() {
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
-# │ INSTALL SDDM THEME                                                                │
+# │ INSTALL LOGIN THEME (SDDM)                                                        │
 # └───────────────────────────────────────────────────────────────────────────────────┘
+# The theme lives in the sibling repo equisdots/login (static, no palette sync);
+# its install.sh does the one-time sudo, selects the theme and enables sddm.
 
-install_sddm_theme() {
-    log "Installing SDDM theme..."
-
-    if [ -d "$SCRIPT_DIR/config/sddm/themes/x" ]; then
-        sudo mkdir -p /usr/share/sddm/themes/x
-        sudo cp -r "$SCRIPT_DIR/config/sddm/themes/x/"* /usr/share/sddm/themes/x/
-
-        # Generate Colors.qml from the active palette (no Matugen involved)
-        if [ -f "$SCRIPT_DIR/scripts/sddm-colors.sh" ]; then
-            bash "$SCRIPT_DIR/scripts/sddm-colors.sh" || warn "SDDM color generation failed (non-fatal)"
+install_login_theme() {
+    local login_dir="$SCRIPT_DIR/../login"
+    [ -f "$login_dir/install.sh" ] || login_dir="${XDG_DATA_HOME:-$HOME/.local/share}/equisdots/login"
+    if [ ! -f "$login_dir/install.sh" ]; then
+        log "login repo not found; cloning equisdots/login..."
+        mkdir -p "$(dirname "$login_dir")"
+        if ! git clone --depth 1 https://github.com/equisdots/login "$login_dir" --quiet; then
+            warn "could not clone equisdots/login; skipping the SDDM theme"
+            return 0
         fi
-        if [ -f "$HOME/.config/hypr/sddm-colors.qml" ]; then
-            sudo cp "$HOME/.config/hypr/sddm-colors.qml" /usr/share/sddm/themes/x/Colors.qml
-        else
-            cat <<EOF | sudo tee /usr/share/sddm/themes/x/Colors.qml > /dev/null
-pragma Singleton
-import QtQuick
-QtObject {
-    readonly property color base: "#1a1a1a"
-    readonly property color surface0: "#2b2b2b"
-    readonly property color text: "#ffffff"
-    readonly property color subtext0: "#cccccc"
-    readonly property color mauve: "#ff9aa2"
-    readonly property color blue: "#8be9fd"
-    readonly property color red: "#ff5555"
-}
-EOF
-            log "SDDM Colors.qml created with default palette"
-        fi
-
-        # Configure SDDM to use the theme
-        sudo mkdir -p /etc/sddm.conf.d
-        cat <<EOF | sudo tee /etc/sddm.conf.d/10-x-theme.conf > /dev/null
-[Theme]
-Current=x
-EOF
-
-        # Disable user-specific theme override if present (SilentSDDM, etc.)
-        if [ -f /etc/sddm.conf.d/theme.conf.user ]; then
-            sudo mv /etc/sddm.conf.d/theme.conf.user /etc/sddm.conf.d/theme.conf.user.bak
-            log "Disabled conflicting theme override: theme.conf.user → theme.conf.user.bak"
-        fi
-
-        # Disable on-screen virtual keyboard (not needed on non-touch devices)
-        sudo cp "$SCRIPT_DIR/config/sddm/z-disable-virtualkbd.conf" /etc/sddm.conf.d/z-disable-virtualkbd.conf
-        log "Disabled SDDM virtual keyboard"
-
-        log "SDDM theme installed and configured!"
-    else
-        warn "SDDM theme directory not found at config/sddm/themes/x"
     fi
+    bash "$login_dir/install.sh"
+    log "Login theme installed and SDDM configured."
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -1134,14 +1098,11 @@ main() {
     # Install Neovim configuration
     install_nvim_config
 
-    # Install SDDM theme
-    prompt "Install SDDM theme (matugen-minimal) and configure display manager? [y/N] "
+    # Install the static login theme (equisdots/login) and configure SDDM
+    prompt "Install the static login theme (equisdots/login) and configure SDDM? [y/N] "
     read_answer sddm_response y
     if [[ "$sddm_response" =~ ^[Yy]$ ]]; then
-        install_sddm_theme
-        if command -v sddm >/dev/null 2>&1; then
-            sudo systemctl enable sddm.service 2>/dev/null || true
-        fi
+        install_login_theme
     fi
 
     # Create directories

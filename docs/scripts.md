@@ -9,7 +9,7 @@ All scripts reside in the repository root `scripts/` directory and are deployed 
 | `caching.sh` | Dynamic caching framework. Exports `QS_CACHE_DIR`, `QS_STATE_DIR`, `QS_RUN_DIR`. Provides `qs_ensure_cache()` to create and export cache paths for any module by name. All QML and shell widgets use this for their runtime directories. |
 | `init.sh` | First-run initialization. Picks a random wallpaper from the collection, applies it via `xwww` (through davincix). Subsequent runs skip wallpaper selection since the wallpaper is already applied. |
 | `qs_manager.sh` | Central IPC manager for QuickShell widgets. Routes workspace switching (fast path, no sourcing) and widget toggle/open/close commands. Also handles wallpaper thumbnail preparation (converts webp, generates video poster frames) and Bluetooth scan lifecycle. |
-| `reload.sh` | Triggers a full QuickShell QML reload via IPC and copies Matugen-generated SDDM colors to the system theme directory. |
+| `reload.sh` | Triggers a full QuickShell QML reload via IPC. |
 
 ## Theming
 

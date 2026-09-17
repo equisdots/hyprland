@@ -5,8 +5,5 @@ if [ -n "$QS" ]; then
     $QS -p ~/.config/hypr/scripts/quickshell/Shell.qml ipc call topbar forceReload 2>/dev/null || true
 fi
 
-# Regenerate SDDM login theme colors from the active palette (no Matugen).
-bash "$(dirname "${BASH_SOURCE[0]}")/sddm-colors.sh" 2>/dev/null || true
-
 # Sync kitty + nvim themes to the active palette.
 bash "$(dirname "${BASH_SOURCE[0]}")/theme-sync.sh" 2>/dev/null || true

@@ -4,6 +4,7 @@
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 CONFIG_DIR="$HOME/.config"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "This will remove the Hyprland configuration files."
 echo "It will NOT uninstall packages or remove NVIDIA configuration."
@@ -14,8 +15,8 @@ echo "  - ~/.config/rofi"
 echo "  - ~/.config/dunst"
 echo "  - ~/.config/kitty"
 echo "  - ~/.config/hypridle"
-echo "  - /usr/share/sddm/themes/matugen-minimal"
-echo "  - /etc/sddm.conf.d/10-matugen-theme.conf"
+echo "  - /usr/share/sddm/themes/x (login theme)"
+echo "  - /etc/sddm.conf.d/10-x-theme.conf"
 echo "  - /etc/sddm.conf.d/z-disable-virtualkbd.conf"
 echo ""
 read -p "Continue? [y/N] " response
@@ -59,10 +60,13 @@ if [ -f /etc/sddm.conf.d/theme.conf.user.bak ]; then
     echo "Restored: theme.conf.user"
 fi
 
-# Remove SDDM theme and configs
-sudo rm -f /etc/sddm.conf.d/10-matugen-theme.conf
-sudo rm -f /etc/sddm.conf.d/z-disable-virtualkbd.conf
-sudo rm -rf /usr/share/sddm/themes/matugen-minimal
+# Remove the login theme and its SDDM config (delegated when the repo is around)
+if [ -f "$SCRIPT_DIR/../login/install.sh" ]; then
+    bash "$SCRIPT_DIR/../login/install.sh" --uninstall
+else
+    sudo rm -rf /usr/share/sddm/themes/x
+    sudo rm -f /etc/sddm.conf.d/10-x-theme.conf /etc/sddm.conf.d/z-disable-virtualkbd.conf
+fi
 
 # Restore previous PAM service for the quickshell lock screen, if backed up
 if [ -f /etc/pam.d/quickshell.backup ]; then

@@ -34,7 +34,7 @@ Deploys configuration files without package installation. Useful if packages are
 ./install.sh -y
 ```
 Answers the prompts with the recommended defaults (NVIDIA setup, kitty,
-starship, SDDM, monthly updater timer, service enablement). The 1.37 GB
+starship, login theme, monthly updater timer, service enablement). The 1.37 GB
 wallpaper pack is skipped: a minimal wallpaper option is planned, so it stays
 manual for now.
 
@@ -59,7 +59,7 @@ manual for now.
    - Enables NVIDIA power management services
    - Optional: passwordless sudo rule for envycontrol
 6. Downloads optional wallpaper collection (1.37 GB)
-7. Optionally installs Kitty config, SDDM theme (matugen-minimal), Neovim config
+7. Optionally installs Kitty config, the static login theme (equisdots/login, SDDM), Neovim config
 8. Generates initial Matugen color scheme from first wallpaper
 9. Enables system services (NetworkManager, power-profiles-daemon, swayosd, pipewire, wireplumber)
 
@@ -69,7 +69,7 @@ manual for now.
 ./uninstall.sh
 ```
 
-Removes all deployed configuration files and SDDM theme. Optionally restores from backup. Does NOT remove installed packages or NVIDIA driver configuration.
+Removes all deployed configuration files and the login theme (delegated to equisdots/login). Optionally restores from backup. Does NOT remove installed packages or NVIDIA driver configuration.
 
 ## Post-Install
 
