@@ -1061,14 +1061,15 @@ main() {
     case "$DISTRO" in
         arch|endeavouros|manjaro|cachyos|garuda|arcolinux|xos|x)
             log "Installing packages for Arch-based system..."
-            install_packages_arch "${CORE_PACKAGES_ARCH[@]}"
+            install_packages_arch "${CORE_PACKAGES_ARCH[@]}" \
+                || warn "package installation reported errors; continuing with the config"
 
             # NVIDIA specific setup
             if [ "$GPU_VENDOR" = "nvidia" ]; then
                 prompt "Configure NVIDIA drivers for Wayland? [Y/n] "
                 read_answer nvidia_response y
                 if [[ ! "$nvidia_response" =~ ^[Nn]$ ]]; then
-                    configure_nvidia
+                    configure_nvidia || warn "NVIDIA setup reported errors; continuing"
                 else
                     INSTALL_GPU_MODE=false
                 fi
@@ -1139,7 +1140,7 @@ main() {
     prompt "Install the static login theme (equisdots/login) and configure SDDM? [y/N] "
     read_answer sddm_response y
     if [[ "$sddm_response" =~ ^[Yy]$ ]]; then
-        install_login_theme
+        install_login_theme || warn "login theme installation failed; retry later with: dots system"
     fi
 
     # Create directories
@@ -1161,7 +1162,7 @@ main() {
     systemctl --user start pipewire wireplumber pipewire-pulse 2>/dev/null || true
 
     # Lock screen auth (PAM service for quickshell)
-    configure_pam_lock
+    configure_pam_lock || warn "PAM setup failed; the lock screen will not accept passwords (retry: dots system)"
 
     check_requirements
 
