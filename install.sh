@@ -836,7 +836,7 @@ install_nvim_config() {
 install_hack_nerd_font() {
     log "Installing Hack Nerd Font..."
     local FONT_DIR="$HOME/.local/share/fonts"
-    local FONT_URL="https://raw.githubusercontent.com/ryanoasis/nerd-fonts/master/patched-fonts/Hack/HackNerdFont-Regular.ttf"
+    local FONT_URL="https://raw.githubusercontent.com/xscriptor-colors/terminal/main/assets/fonts/HackNerdFont/HackNerdFont-Regular.ttf"
     local FONT_PATH="$FONT_DIR/HackNerdFont-Regular.ttf"
 
     mkdir -p "$FONT_DIR"
