@@ -116,6 +116,17 @@ chmod +x install.sh
   <a href="SECURITY.md">Security</a>
 </p>
 
+## Local checks
+
+No CI: run the checks locally before pushing.
+
+```bash
+scripts/check.sh
+```
+
+- `luac -p` over every `config/**/*.lua` module.
+- `bash -n` over every shell script (`shellcheck`, advisory, when installed).
+
 <h2 align="center" id="related-repos">Related Repos</h2>
 <ul>
   <li><a href="https://github.com/equisdots/shell">Shell</a> - Quickshell UI (bar, popups, panels, editor, lock)</li>
