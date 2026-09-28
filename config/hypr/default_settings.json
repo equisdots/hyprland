@@ -7,6 +7,19 @@
   "language": "",
   "kbOptions": "grp:alt_shift_toggle",
   "barEngine": "bar",
+  "glass": {
+    "enabled": false,
+    "opacity": 0.85
+  },
+  "shadows": {
+    "enabled": true,
+    "blur": 26,
+    "spread": 0,
+    "offsetX": 0,
+    "offsetY": 6,
+    "opacity": 0.5,
+    "radius": 18
+  },
   "bar": {
     "position": "top",
     "palette": "x",

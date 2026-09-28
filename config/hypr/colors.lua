@@ -129,4 +129,49 @@ else
     X.inactive_border = c8 and c8:sub(1,1) == "#" and ("rgba(" .. c8:sub(2) .. "aa)") or ("rgba(" .. X.color8 .. "aa)")
 end
 
+-- Optional two-stop gradient (custom colors only): same keys the shell writes
+-- (borderGradientActive/Inactive, borderActive2/Inactive2, borderAngle*).
+-- The 0.56 Lua API wants gradients as a table:
+-- { colors = { 0xAARRGGBB, 0xAARRGGBB }, angle = deg }.
+local function jsonNumber(text, key)
+    if not text then return nil end
+    return tonumber(text:match('"' .. key .. '"%s*:%s*(-?%d+%.?%d*)'))
+end
+
+local function color(hex, alpha)
+    if not hex or hex:sub(1, 1) ~= "#" then return nil end
+    return tonumber(alpha .. hex:sub(2), 16)
+end
+
+local function gradient(hexA, hexB, angle, alpha)
+    local a, b = color(hexA, alpha), color(hexB, alpha)
+    if not a or not b then return nil end
+    return { colors = { a, b }, angle = math.floor((angle or 45) + 0.5) }
+end
+
+if followPalette == "false" then
+    local slug = jsonString(scope, "palette") or "x"
+    local palPath = home .. "/.config/hypr/scripts/quickshell/dock/palettes/" .. slug .. ".json"
+    -- First stop: the manual override when valid, else the palette accent
+    -- (color1) / muted (color8), mirroring Colors.borderHex in the shell.
+    if jsonBool(scope, "borderGradientActive") == "true" then
+        local a = borderActiveHex
+        if not (a and a:sub(1, 1) == "#") then
+            local c1 = jsonStringFile(palPath, "color1")
+            a = (c1 and c1:sub(1, 1) == "#") and c1 or ("#" .. X.color1)
+        end
+        X.active_border = gradient(a, jsonString(scope, "borderActive2"),
+                                   jsonNumber(scope, "borderAngleActive"), "ee") or X.active_border
+    end
+    if jsonBool(scope, "borderGradientInactive") == "true" then
+        local b = borderInactiveHex
+        if not (b and b:sub(1, 1) == "#") then
+            local c8 = jsonStringFile(palPath, "color8")
+            b = (c8 and c8:sub(1, 1) == "#") and c8 or ("#" .. X.color8)
+        end
+        X.inactive_border = gradient(b, jsonString(scope, "borderInactive2"),
+                                     jsonNumber(scope, "borderAngleInactive"), "aa") or X.inactive_border
+    end
+end
+
 return X

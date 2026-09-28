@@ -1,5 +1,15 @@
 # Changelog
 
+## [2026-09-28]
+
+### Added
+- **Layer rules for the shell surfaces** (`config/hypr/layers.lua`): `blur = true` + `ignore_alpha` for the Quickshell namespaces (`qs-master`, the bar, floating overlay, notifications, desktop widgets), enabling the glassmorphism backdrop blur. Loaded from `hyprland.lua` after the window rules.
+- **Window border gradients in `colors.lua`**: optional two-stop gradient per border (`borderGradientActive/Inactive`, `borderActive2/Inactive2`, `borderAngle*`) built with the 0.56 Lua table format, falling back to the palette accent/muted colors like the shell does.
+- **`default_settings.json`**: `shadows` (host-drawn popup/bar shadows) and `glass` (translucent backgrounds) sections.
+
+### Changed
+- `hyprland.lua` requires the new `layers` module.
+
 ## [2026-09-10]
 
 ### Added

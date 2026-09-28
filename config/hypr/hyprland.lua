@@ -17,6 +17,7 @@ require("monitors")     -- Monitor configuration
 require("keybinds")     -- All keybindings (hl.bind)
 require("animations")   -- Curves + animations (hl.curve / hl.animation)
 require("windowrules")  -- Window rules (hl.window_rule)
+require("layers")       -- Layer rules: backdrop blur for the shell surfaces (glass)
 require("workspaces")   -- Workspace rules & scratchpads (hl.workspace_rule)
 require("autostart")    -- Startup applications (hl.on "hyprland.start")
 
