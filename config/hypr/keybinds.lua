@@ -52,6 +52,8 @@ hl.bind(mod .. "SHIFT + B", run("bash " .. scripts .. "/qs_manager.sh", "toggle 
 hl.bind(mod .. "SHIFT + D", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor"))
 -- Panel Settings abierto directamente en la página Guide (info/paletas/about)
 hl.bind(mod .. "X", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor guide"))
+-- Terminal settings UI (xturing): every SUPER+SHIFT+D option from the terminal
+hl.bind(mod .. "SHIFT + X", hl.dsp.exec_cmd(V.terminal .. " xturing"))
 -- Desktop-widget redactor (full-screen editor; SUPER+W remains the wallpaper picker)
 hl.bind(mod .. "SHIFT + W", run("bash " .. scripts .. "/qs_manager.sh", "toggle widgets-redactor"))
 hl.bind(mod .. "R", run(scripts .. "/reload.sh"))

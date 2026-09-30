@@ -27,6 +27,7 @@
 | SUPER + H | Toggle guide panel |
 | SUPER + SHIFT + S | Toggle settings panel (bar-editor) |
 | SUPER + SHIFT + E | Toggle settings panel (bar pages) |
+| SUPER + SHIFT + X | Launch xturing (settings panel in the terminal) |
 | SUPER + SHIFT + T | Toggle focus time tracker |
 | SUPER + U | Toggle system updater |
 | SUPER + X | Toggle Stewart (ambient visualizer) |
