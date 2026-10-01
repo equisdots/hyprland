@@ -28,6 +28,19 @@ fi
 
 FLAG="$DAVINCIX_STATE_DIR/wallpaper_initialized"
 
+# Sesión anterior con una escena interactiva activa: re-aplícala. El estado
+# persiste entre reinicios y la escena se re-lanza tal cual, con su paleta.
+scene_state="$DAVINCIX_STATE_DIR/current_scene"
+if [ -f "$scene_state" ]; then
+    scene_dir="$(cat "$scene_state" 2>/dev/null)"
+    if [ -n "$scene_dir" ] && [ -f "$scene_dir/scene.js" ]; then
+        sleep 0.5
+        "$DAVINCIX_CLI" set "$scene_dir"
+        exit 0
+    fi
+    rm -f "$scene_state"
+fi
+
 # Si el flag existe, el wallpaper ya se aplicó; nada que hacer.
 if [ -f "$FLAG" ]; then
     exit 0
