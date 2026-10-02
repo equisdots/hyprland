@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026-10-02]
+
+### Added
+- **Interactive wallpapers**: `scripts/init.sh` restores the active xwww scene from the davincix `current_scene` state before the first-boot wallpaper check, so the scene comes back on reboot.
+
+### Changed
+- `config/hypr/env.lua` prepends `~/.local/bin` to the session PATH when it is missing, so the compositor and the Quickshell shell find the dotfiles wrappers and the scene-capable `xwww` build.
+
+### Documentation
+- `docs/interactive-wallpapers.md` documents the session restore and the picker/CLI usage; the `init.sh` row in `docs/scripts.md` reflects the new behaviour.
+
 ## [2026-09-28]
 
 ### Added
