@@ -7,6 +7,7 @@
 
 ### Changed
 - `config/hypr/env.lua` prepends `~/.local/bin` to the session PATH when it is missing, so the compositor and the Quickshell shell find the dotfiles wrappers and the scene-capable `xwww` build.
+- `install.sh` installs xwww `v0.13.1` by default (`XWWW_VERSION` overrides it), with the scene frame presentation and glyph caching fixes.
 
 ### Documentation
 - `docs/interactive-wallpapers.md` documents the session restore and the picker/CLI usage; the `init.sh` row in `docs/scripts.md` reflects the new behaviour.
