@@ -4,6 +4,7 @@
 
 ### Added
 - **Interactive wallpapers**: `scripts/init.sh` restores the active xwww scene from the davincix `current_scene` state before the first-boot wallpaper check, so the scene comes back on reboot.
+- **Palette widget**: `SUPER + SHIFT + P` toggles the shell's standalone palette switcher (`ui/panels/palette/PaletteWidget.qml`, shell repo). Its anchor is configurable with `settings.widgets.palette.position`.
 
 ### Changed
 - `config/hypr/env.lua` prepends `~/.local/bin` to the session PATH when it is missing, so the compositor and the Quickshell shell find the dotfiles wrappers and the scene-capable `xwww` build.

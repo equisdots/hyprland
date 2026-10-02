@@ -29,6 +29,7 @@
 | SUPER + SHIFT + E | Toggle settings panel (bar pages) |
 | SUPER + SHIFT + X | Launch xturing (settings panel in the terminal) |
 | SUPER + SHIFT + T | Toggle focus time tracker |
+| SUPER + SHIFT + P | Toggle palette widget (position: `settings.widgets.palette.position`) |
 | SUPER + U | Toggle system updater |
 | SUPER + X | Toggle Stewart (ambient visualizer) |
 | SUPER + Y | Toggle quick notes |
