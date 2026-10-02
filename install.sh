@@ -178,8 +178,8 @@ install_packages_debian() {
 # release tarball, source build as fallback). The upstream 'awww' package is not
 # installed. Env:
 #   FORCE_XWWW=1       reinstall even when xwww-daemon is already present
-#   XWWW_VERSION=...   release tag to install (default v0.12.1)
-XWWW_VERSION="${XWWW_VERSION:-v0.12.1}"
+#   XWWW_VERSION=...   release tag to install (default v0.13.0)
+XWWW_VERSION="${XWWW_VERSION:-v0.13.0}"
 
 # Release asset suffix for this machine ("" when there is no prebuilt).
 xwww_release_arch() {
@@ -254,7 +254,7 @@ install_xwww_source() {
         return 1
     fi
 
-    if ! (cd "$src" && cargo build --release); then
+    if ! (cd "$src" && cargo build --release --features scene); then
         warn "xwww: build failed"
         return 1
     fi
