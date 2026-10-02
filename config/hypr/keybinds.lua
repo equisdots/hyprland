@@ -49,6 +49,7 @@ hl.bind(mod .. "I", run("bash " .. scripts .. "/qs_manager.sh", "toggle system-m
 hl.bind(mod .. "O", run("bash " .. scripts .. "/qs_manager.sh", "toggle rss-reader"))
 hl.bind(mod .. "apostrophe", run("bash " .. scripts .. "/qs_manager.sh", "toggle file-search"))
 hl.bind(mod .. "SHIFT + B", run("bash " .. scripts .. "/qs_manager.sh", "toggle window-controls"))
+hl.bind(mod .. "SHIFT + P", run("bash " .. scripts .. "/qs_manager.sh", "toggle palette"))
 hl.bind(mod .. "SHIFT + D", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor"))
 -- Panel Settings abierto directamente en la página Guide (info/paletas/about)
 hl.bind(mod .. "X", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor guide"))
