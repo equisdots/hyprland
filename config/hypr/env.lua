@@ -69,6 +69,14 @@ hl.env("MOZ_DBUS_REMOTE", "1")
 hl.env("WALLPAPER_DIR", os.getenv("HOME") .. "/.config/hypr/wallpapers")
 hl.env("SCRIPT_DIR", os.getenv("HOME") .. "/.config/hypr/scripts")
 
+-- ~/.local/bin holds the dots/davincix/theme-sync wrappers and the
+-- scene-capable xwww build; the session may not inherit it from the shell rc.
+local localBin = os.getenv("HOME") .. "/.local/bin"
+local sessionPath = os.getenv("PATH") or ""
+if not sessionPath:find(localBin, 1, true) then
+    hl.env("PATH", localBin .. ":" .. sessionPath)
+end
+
 -- XDG user directories (falls back to sensible defaults)
 hl.env("XDG_PICTURES_DIR", os.getenv("XDG_PICTURES_DIR") or os.getenv("HOME") .. "/Pictures")
 hl.env("XDG_VIDEOS_DIR", os.getenv("XDG_VIDEOS_DIR") or os.getenv("HOME") .. "/Videos")
