@@ -63,8 +63,8 @@ prompt() {
 }
 
 # Read an answer; with -y/--yes the provided default is used without asking.
-# (Wallpapers default to "n": the pack is 1.37 GB and a minimal option is
-# planned, so a non-interactive run skips it.)
+# (Wallpapers use their own pack menu and default to skip under -y: set
+# WALLPAPERS_PACK=<tag> to force one non-interactively.)
 read_answer() {
     local var="$1" def="${2:-y}"
     if [[ "${ASSUME_YES:-0}" = "1" ]]; then
@@ -725,6 +725,68 @@ theme_sync_run() {
     fi
 }
 
+# Custom neon cursor trail (shaders/x-glow.slang + x-trail.pipeline): needs
+# kitty >= 0.49 and the shader-slang compiler (`slangc`). theme-sync only
+# rewrites the palette include and the active border in kitty.conf, so the
+# shader wiring below survives every color switch.
+ensure_kitty_shader_deps() {
+    if command -v slangc >/dev/null 2>&1; then
+        log "kitty shaders: slangc present ($(command -v slangc))"
+        return 0
+    fi
+    if command -v pacman >/dev/null 2>&1; then
+        log "kitty shaders: installing shader-slang..."
+        sudo pacman -S --needed --noconfirm shader-slang \
+            || warn "could not install shader-slang (continuing without it)"
+        if command -v slangc >/dev/null 2>&1; then
+            log "kitty shaders: shader-slang installed"
+            return 0
+        fi
+    fi
+    warn "kitty shaders: slangc not found; kitty disables custom_shaders silently."
+    warn "  Arch:  sudo pacman -S shader-slang"
+    warn "  Other: install shader-slang (https://github.com/shader-slang/slang/releases)"
+    return 0
+}
+
+# Deploy the shader pair from the xscriptor-colors/terminal checkout. The
+# upstream installer copies them too; this keeps the equisdots flow working
+# when that step is skipped (older checkout, remote mode, partial install).
+install_kitty_shaders() {
+    local src="$1" dest="$CONFIG_DIR/kitty/shaders" f n=0
+    [ -d "$src" ] || { warn "kitty shaders: $src not found in the terminal repo"; return 0; }
+    mkdir -p "$dest"
+    for f in "$src"/*.slang "$src"/*.pipeline; do
+        [ -f "$f" ] || continue
+        cp -f "$f" "$dest/" && n=$((n + 1))
+    done
+    log "kitty shaders: $n file(s) -> $dest"
+    return 0
+}
+
+# Make sure kitty.conf loads the trail (idempotent, additive only: an existing
+# custom_shaders/cursor_trail value is never touched).
+ensure_kitty_shader_config() {
+    local conf="$CONFIG_DIR/kitty/kitty.conf" added=0
+    [ -f "$conf" ] || return 0
+    if ! grep -qE '^[[:space:]]*custom_shaders[[:space:]]' "$conf"; then
+        printf '\ncustom_shaders x-trail\n' >> "$conf"
+        added=1
+    fi
+    if ! grep -qE '^[[:space:]]*cursor_trail[[:space:]]' "$conf"; then
+        printf 'cursor_trail 12\n' >> "$conf"
+        added=1
+    fi
+    if ! grep -qE '^[[:space:]]*cursor_trail_start_threshold[[:space:]]' "$conf"; then
+        printf 'cursor_trail_start_threshold 0\n' >> "$conf"
+        added=1
+    fi
+    if [ "$added" -eq 1 ]; then
+        log "kitty shaders: enabled the neon trail in kitty.conf"
+    fi
+    return 0
+}
+
 install_kitty_config() {
     log "Installing Kitty configuration from xscriptor-colors/terminal..."
 
@@ -742,14 +804,21 @@ install_kitty_config() {
         return
     fi
 
+    # Install the compiler first so the upstream installer finds slangc and
+    # skips its own package step.
+    ensure_kitty_shader_deps
+
     local KITTY_INSTALLER="$TMP_DIR/terminal/emulators/kitty/install.sh"
     if [ -f "$KITTY_INSTALLER" ]; then
-        log "Running kitty installer (packages, font, themes, aliases)..."
+        log "Running kitty installer (packages, font, themes, shaders, aliases)..."
         bash "$KITTY_INSTALLER" || warn "Kitty installer finished with warnings (non-fatal)"
         log "Kitty configuration installed from xscriptor-colors/terminal!"
     else
         warn "kitty installer not found in cloned repo."
     fi
+
+    install_kitty_shaders "$TMP_DIR/terminal/emulators/kitty/shaders"
+    ensure_kitty_shader_config
     rm -rf "$TMP_DIR"
 
     # Regenerate the kitty themes from the palettes: the terminal repo ships
@@ -936,58 +1005,42 @@ install_user_payload() {
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
-# │ WALLPAPERS (equisdots/background releases)                                        │
+# │ WALLPAPERS & SCENES (equisdots/background)                                        │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-# The wallpaper collection lives in the equisdots/background repo and is published
-# as a release asset named `background.zip` (stable name, so
-# /releases/latest/download/background.zip keeps working across releases).
-# Content: images (jpg/png/webp) and/or videos (mp4/webm/mov/mkv), either at the
-# zip root or inside a single top-level folder. Users can also drop their own
-# files in ~/.config/hypr/wallpapers.
+# The collections live in the equisdots/background repo. Picture packs are one
+# per release (`background.zip` for the X collection, `Wallpapers-Avex-X-*.zip`
+# for the Avex collaboration, ...); the interactive scenes (dynamic xwww
+# wallpapers) are committed under `scenes/`. The download/install logic is
+# separated into its own scripts so everything can be managed without
+# rerunning the installer:
+#   scripts/wallpapers.sh       picture menu + --list/--pack/--dir engine
+#   scripts/wallpapers-x.sh     X collection (v1.0.0) shortcut
+#   scripts/wallpapers-avex.sh  Avex collection (v1.1.0) shortcut
+#   scripts/scenes.sh           interactive scenes (--yes/--no/--dir/--source)
+# install_dotfiles deploys all of them to ~/.config/hypr/scripts/. The picture
+# engine resolves the packs from the GitHub API (new releases show up
+# automatically) with the current releases pinned as offline fallback;
+# `WALLPAPERS_PACK=<tag>` (or `none`) skips the menu, and under -y the default
+# is to skip. Scenes honor WALLPAPER_SCENES=1|0 and also skip under -y.
 
 download_wallpapers() {
-    local WALLPAPER_DIR="$CONFIG_DIR/hypr/wallpapers"
-    local WALLPAPER_URL="https://github.com/equisdots/background/releases/latest/download/background.zip"
-    local TMP_ZIP TMP_EXTRACT
-    TMP_ZIP="$(mktemp --suffix=.zip)"
-    TMP_EXTRACT="$(mktemp -d)"
-
-    echo ""
-    prompt "Download the wallpaper collection (equisdots/background)? [y/N] "
-    read_answer wall_response n
-    if [[ ! "$wall_response" =~ ^[Yy]$ ]]; then
-        log "Skipping wallpaper download (you can drop your own files in $WALLPAPER_DIR)."
+    local script="$SCRIPT_DIR/scripts/wallpapers.sh"
+    if [ ! -f "$script" ]; then
+        warn "scripts/wallpapers.sh not found; skipping the wallpaper packs"
         return
     fi
+    ASSUME_YES="${ASSUME_YES:-0}" bash "$script" \
+        || warn "wallpaper pack step failed (non-fatal)"
+}
 
-    log "Downloading wallpaper pack..."
-    if ! wget --progress=bar:force -O "$TMP_ZIP" "$WALLPAPER_URL"; then
-        error "Failed to download the wallpaper pack (missing release asset background.zip?)."
-        rm -f "$TMP_ZIP"; rm -rf "$TMP_EXTRACT"
+download_scenes() {
+    local script="$SCRIPT_DIR/scripts/scenes.sh"
+    if [ ! -f "$script" ]; then
+        warn "scripts/scenes.sh not found; skipping the interactive scenes"
         return
     fi
-
-    log "Extracting wallpapers..."
-    if ! unzip -qo "$TMP_ZIP" -d "$TMP_EXTRACT"; then
-        error "Failed to extract the wallpaper pack."
-        rm -f "$TMP_ZIP"; rm -rf "$TMP_EXTRACT"
-        return
-    fi
-
-    mkdir -p "$WALLPAPER_DIR"
-    local INNER_DIR
-    INNER_DIR=$(find "$TMP_EXTRACT" -mindepth 1 -maxdepth 1 -type d | head -n 1)
-
-    if [ -n "$INNER_DIR" ] && [ "$(find "$TMP_EXTRACT" -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ]; then
-        # Single top-level folder inside the zip: flatten it.
-        cp -r "$INNER_DIR/"* "$WALLPAPER_DIR/"
-    else
-        cp -r "$TMP_EXTRACT/"* "$WALLPAPER_DIR/"
-    fi
-
-    log "Wallpapers installed to $WALLPAPER_DIR ($(find "$WALLPAPER_DIR" -type f | wc -l) files)"
-    rm -f "$TMP_ZIP"
-    rm -rf "$TMP_EXTRACT"
+    ASSUME_YES="${ASSUME_YES:-0}" bash "$script" \
+        || warn "interactive scene step failed (non-fatal)"
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -1149,8 +1202,9 @@ main() {
             || warn "could not install the monthly updater timer"
     fi
 
-    # Optional wallpaper collection (equisdots/background release asset)
+    # Optional wallpaper collections + interactive scenes (equisdots/background)
     download_wallpapers
+    download_scenes
 
     # Base app configs (xscriptor-colors ecosystem) + palette theming
     prompt "Install custom Kitty configuration? [Y/n] "

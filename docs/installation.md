@@ -34,9 +34,10 @@ Deploys configuration files without package installation. Useful if packages are
 ./install.sh -y
 ```
 Answers the prompts with the recommended defaults (NVIDIA setup, login theme,
-monthly updater timer, service enablement). The wallpaper collection
-(equisdots/background, release asset `background.zip`) is skipped, so it stays
-manual/optional.
+monthly updater timer, service enablement). The wallpaper packs and the
+interactive scenes (equisdots/background) are skipped, so they stay
+manual/optional; set `WALLPAPERS_PACK=<tag>` (e.g. `v1.0.0`, `v1.1.0`, or
+`none`) and/or `WALLPAPER_SCENES=1` to install them non-interactively.
 
 ## What the Installer Does
 
@@ -58,7 +59,13 @@ manual/optional.
    - Blacklists nouveau
    - Enables NVIDIA power management services
    - Optional: passwordless sudo rule for envycontrol
-6. Downloads the optional wallpaper collection (equisdots/background release asset `background.zip`)
+6. Offers the optional wallpapers (equisdots/background): picture packs (X and
+   Avex releases; menu, or `WALLPAPERS_PACK=<tag>`) and the interactive scenes
+   for xwww (`scripts/scenes.sh`, `WALLPAPER_SCENES=1`). The logic lives in
+   `scripts/wallpapers.sh` and `scripts/scenes.sh`, with the shortcuts
+   `scripts/wallpapers-x.sh` (v1.0.0) and `scripts/wallpapers-avex.sh`
+   (v1.1.0); all are deployed to `~/.config/hypr/scripts/`, and `--list`
+   shows the available releases
 7. Optionally installs the static login theme (equisdots/login, SDDM)
 8. Installs the shell payload through `equisdots/dots` (Quickshell UI, palettes,
    theme-sync, davincix, timex): runs `dots install` when available and fetches
