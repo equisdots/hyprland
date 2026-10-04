@@ -941,6 +941,26 @@ install_starship_config() {
     theme_sync_run
 }
 
+# xfetch / xtop: org tools that theme-sync already knows how to theme. Each
+# installer is its own script, also deployed to ~/.config/hypr/scripts/.
+install_xfetch() {
+    local script="$SCRIPT_DIR/scripts/install-xfetch.sh"
+    if [ ! -f "$script" ]; then
+        warn "scripts/install-xfetch.sh not found; skipping xfetch"
+        return
+    fi
+    bash "$script" || warn "xfetch install failed (non-fatal)"
+}
+
+install_xtop() {
+    local script="$SCRIPT_DIR/scripts/install-xtop.sh"
+    if [ ! -f "$script" ]; then
+        warn "scripts/install-xtop.sh not found; skipping xtop"
+        return
+    fi
+    bash "$script" || warn "xtop install failed (non-fatal)"
+}
+
 install_nvim_config() {
     local NVIM_DEST="$CONFIG_DIR/nvim"
 
@@ -1303,6 +1323,28 @@ main() {
     read_answer starship_response y
     if [[ ! "$starship_response" =~ ^[Nn]$ ]]; then
         install_starship_config
+    fi
+
+    # xfetch (latest release) and xtop (built from source): optional org tools
+    # that theme-sync themes once ~/.config/<tool> exists.
+    if [ -n "${INSTALL_XFETCH:-}" ]; then
+        xfetch_response="$INSTALL_XFETCH"
+    else
+        prompt "Install xfetch (terminal fetch tool, latest release)? [Y/n] "
+        read_answer xfetch_response y
+    fi
+    if [[ ! "$xfetch_response" =~ ^[Nn]$ ]]; then
+        install_xfetch
+    fi
+
+    if [ -n "${INSTALL_XTOP:-}" ]; then
+        xtop_response="$INSTALL_XTOP"
+    else
+        prompt "Install xtop (system monitor TUI, built from source)? [y/N] "
+        read_answer xtop_response n
+    fi
+    if [[ "$xtop_response" =~ ^[Yy]$ ]]; then
+        install_xtop
     fi
 
     # Hack Nerd Font (UI glyphs + SDDM)
