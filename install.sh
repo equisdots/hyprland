@@ -313,6 +313,7 @@ CORE_PACKAGES_ARCH=(
 
     # Terminal
     "kitty"
+    "zsh"
     "starship"
 
     # Utilities
@@ -363,9 +364,11 @@ CORE_PACKAGES_ARCH=(
     "kwallet5"
     "libsecret"
 
-    # Fonts (Hack Nerd Font is installed separately via install_hack_nerd_font)
+    # Fonts (Hack Nerd Font is installed separately via install_hack_nerd_font;
+    # noto-fonts-cjk provides the glyphs for the kanji-rain scene)
     "noto-fonts"
     "noto-fonts-emoji"
+    "noto-fonts-cjk"
 
     # Themes
     "adw-gtk3"
@@ -826,6 +829,65 @@ install_kitty_config() {
     theme_sync_run
 }
 
+# ┌───────────────────────────────────────────────────────────────────────────────────┐
+# │ ZSH & STARSHIP SHELL WIRING                                                       │
+# └───────────────────────────────────────────────────────────────────────────────────┘
+# zsh ships with the core packages. The login shell is never changed without
+# consent (SET_ZSH_DEFAULT=1|0 forces it), and starship gets its `init` line in
+# both rc files: the upstream installer only writes the rc of the active shell
+# and never adds that line, which left a fresh zsh without prompt or themes.
+
+# Set zsh as the login shell when the user accepts.
+configure_zsh_login_shell() {
+    local zsh_bin user current answer
+    zsh_bin="$(command -v zsh 2>/dev/null || true)"
+    if [ -z "$zsh_bin" ]; then
+        warn "zsh is not installed; skipping the default-shell step"
+        return 0
+    fi
+    user="${USER:-$(id -un)}"
+    current="$(getent passwd "$user" 2>/dev/null | cut -d: -f7 || true)"
+    [ -n "$current" ] || current="${SHELL:-}"
+    if [[ "$current" == *zsh ]]; then
+        log "zsh is already the login shell"
+        return 0
+    fi
+
+    if [ -n "${SET_ZSH_DEFAULT:-}" ]; then
+        answer="$SET_ZSH_DEFAULT"
+    else
+        prompt "Set zsh as your default shell? [y/N] "
+        read_answer zsh_shell_response n
+        answer="$zsh_shell_response"
+    fi
+    if [[ ! "$answer" =~ ^([Yy]|1|yes|true)$ ]]; then
+        log "Keeping ${current:-your current shell} (change it later with: chsh -s $zsh_bin)"
+        return 0
+    fi
+
+    if chsh -s "$zsh_bin" "$user"; then
+        log "Login shell set to $zsh_bin (takes effect on the next login)"
+    else
+        warn "could not change the login shell; run: chsh -s $zsh_bin"
+    fi
+    return 0
+}
+
+# Add the starship init line to a rc file (idempotent; the upstream installer
+# only writes the theme aliases/export and never this line).
+ensure_starship_init() {
+    local rc="$1" shell="$2"
+    [ -f "$rc" ] || return 0
+    if grep -qF "starship init $shell" "$rc" 2>/dev/null; then
+        return 0
+    fi
+    {
+        printf '\n# equisdots: starship prompt\n'
+        printf 'eval "$(starship init %s)"\n' "$shell"
+    } >> "$rc"
+    log "starship: init line added to $rc"
+}
+
 install_starship_config() {
     log "Installing Starship configuration from xscriptor-colors/terminal..."
 
@@ -847,11 +909,32 @@ install_starship_config() {
     if [ -f "$STARSHIP_INSTALLER" ]; then
         log "Running starship installer (themes, shell function, STARSHIP_CONFIG)..."
         bash "$STARSHIP_INSTALLER" || warn "Starship installer finished with warnings (non-fatal)"
+
+        # The upstream installer only writes the rc of the active login shell;
+        # run it once more for the other shell so switching shells keeps the
+        # theme aliases (XSC_STARSHIP_SHELL_RC forces the target rc).
+        local entry rc shell
+        for entry in "$HOME/.zshrc zsh" "$HOME/.bashrc bash"; do
+            rc="${entry%% *}"
+            shell="${entry##* }"
+            command -v "$shell" >/dev/null 2>&1 || continue
+            if [ -f "$rc" ] && grep -q 'xscriptor-starship-v2' "$rc" 2>/dev/null; then
+                continue
+            fi
+            XSC_STARSHIP_SHELL_RC="$rc" bash "$STARSHIP_INSTALLER" \
+                || warn "starship: could not configure $rc (non-fatal)"
+        done
+
         log "Starship configuration installed from xscriptor-colors/terminal!"
     else
         warn "starship installer not found in cloned repo."
     fi
     rm -rf "$TMP_DIR"
+
+    # The upstream installer never adds the init line; without it zsh shows no
+    # prompt and the theme aliases do nothing.
+    if command -v bash >/dev/null 2>&1; then ensure_starship_init "$HOME/.bashrc" bash; fi
+    if command -v zsh >/dev/null 2>&1; then ensure_starship_init "$HOME/.zshrc" zsh; fi
 
     # Regenerate the starship themes and the fixed active config, so the prompt
     # follows the bar palette like kitty does.
@@ -1167,7 +1250,7 @@ main() {
         fedora)
             warn "Fedora support is experimental. Some packages may not be available."
             # Basic packages for Fedora
-            install_packages_fedora hyprland rofi-wayland kitty starship dunst grim slurp wl-clipboard jq imagemagick librsvg2 ddcutil rust
+            install_packages_fedora hyprland rofi-wayland kitty zsh starship dunst grim slurp wl-clipboard jq imagemagick librsvg2 ddcutil rust
             ;;
         debian|ubuntu|pop)
             error "Debian/Ubuntu requires manual Hyprland installation from source."
@@ -1212,6 +1295,9 @@ main() {
     if [[ ! "$kitty_response" =~ ^[Nn]$ ]]; then
         install_kitty_config
     fi
+
+    # zsh as the login shell (installed with the core packages)
+    configure_zsh_login_shell
 
     prompt "Install custom Starship configuration? [Y/n] "
     read_answer starship_response y
@@ -1329,6 +1415,7 @@ case "$1" in
         write_version_state
         install_user_payload
         install_kitty_config
+        configure_zsh_login_shell
         install_starship_config
         install_hack_nerd_font
         install_nvim_config

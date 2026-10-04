@@ -38,6 +38,8 @@ monthly updater timer, service enablement). The wallpaper packs and the
 interactive scenes (equisdots/background) are skipped, so they stay
 manual/optional; set `WALLPAPERS_PACK=<tag>` (e.g. `v1.0.0`, `v1.1.0`, or
 `none`) and/or `WALLPAPER_SCENES=1` to install them non-interactively.
+`SET_ZSH_DEFAULT=1` sets zsh as the login shell without prompting (default
+`0`: it only asks interactively).
 
 ## What the Installer Does
 
@@ -45,7 +47,9 @@ manual/optional; set `WALLPAPERS_PACK=<tag>` (e.g. `v1.0.0`, `v1.1.0`, or
 2. Installs required packages via AUR helper (yay/paru):
    - Hyprland and its Wayland ecosystem (xdg-desktop-portal, qt5/6-wayland, polkit)
    - QuickShell (QML shell), SwayOSD (on-screen display)
-   - Utilities: kitty, dunst, grim, slurp, cliphist, gpu-screen-recorder, rofi, cava, and more
+   - Utilities: kitty, zsh, starship, dunst, grim, slurp, cliphist, gpu-screen-recorder, rofi, cava, and more
+     (zsh can be set as the login shell during the install; starship is wired
+     into both `.bashrc` and `.zshrc`)
    - xwww: built from source (fork of awww with extra transitions) and installed to `/usr/local/bin` — the upstream `awww` package is not used
    - Fonts: Hack Nerd Font (downloaded separately), Noto Fonts, Noto Emoji
    - Themes: adw-gtk3, Papirus icons, Bibata cursors
