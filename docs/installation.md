@@ -39,7 +39,8 @@ interactive scenes (equisdots/background) are skipped, so they stay
 manual/optional; set `WALLPAPERS_PACK=<tag>` (e.g. `v1.0.0`, `v1.1.0`, or
 `none`) and/or `WALLPAPER_SCENES=1` to install them non-interactively.
 `SET_ZSH_DEFAULT=1` sets zsh as the login shell without prompting (default
-`0`: it only asks interactively).
+`0`: it only asks interactively). `INSTALL_XFETCH=1|0` and
+`INSTALL_XTOP=1|0` force or skip the xfetch/xtop installers.
 
 ## What the Installer Does
 
@@ -70,12 +71,17 @@ manual/optional; set `WALLPAPERS_PACK=<tag>` (e.g. `v1.0.0`, `v1.1.0`, or
    `scripts/wallpapers-x.sh` (v1.0.0) and `scripts/wallpapers-avex.sh`
    (v1.1.0); all are deployed to `~/.config/hypr/scripts/`, and `--list`
    shows the available releases
-7. Optionally installs the static login theme (equisdots/login, SDDM)
-8. Installs the shell payload through `equisdots/dots` (Quickshell UI, palettes,
+7. Offers the optional org tools, each with its own prompt and script:
+   `scripts/install-xfetch.sh` (latest release, checksum-verified) and
+   `scripts/install-xtop.sh` (built from source with cargo); both are deployed
+   to `~/.config/hypr/scripts/` and theme-sync themes them once their config
+   dirs exist
+8. Optionally installs the static login theme (equisdots/login, SDDM)
+9. Installs the shell payload through `equisdots/dots` (Quickshell UI, palettes,
    theme-sync, davincix, timex): runs `dots install` when available and fetches
    it on demand otherwise. Under `dots system` this step is skipped because the
    meta installer runs it right after.
-9. Enables system services (NetworkManager, power-profiles-daemon, swayosd, pipewire, wireplumber)
+10. Enables system services (NetworkManager, power-profiles-daemon, swayosd, pipewire, wireplumber)
 
 ## Uninstallation
 
