@@ -19,6 +19,7 @@
 <h2 align="center">Content</h2>
 
 <p align="center">
+  <a href="#previews">Previews</a> &middot;
   <a href="#quick-install">Quick Install</a> &middot;
   <a href="#features">Features</a> &middot;
   <a href="#customization">Customization</a> &middot;
@@ -27,6 +28,143 @@
   <a href="#documentation">Documentation</a> &middot;
   <a href="#related-repos">Related Repos</a>
 </p>
+
+---
+
+## Previews
+
+<details>
+<summary>previews</summary>
+
+<p>Captures served from the <a href="https://equisdots.github.io/web/previews/">website previews page</a> (hotlinked; no images are stored in this repository).</p>
+
+<h3>The desktop</h3>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/desktop-doctor.webp"><img src="https://equisdots.github.io/web/previews/shots/desktop-doctor-1280.webp" alt="The full desktop" width="100%"></a>
+  <br>
+  <sub><strong>The full desktop</strong> -- equisdots doctor, the timex TUI and btop over an interactive scene.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/desktop-tiling.webp"><img src="https://equisdots.github.io/web/previews/shots/desktop-tiling-1280.webp" alt="Tiling and panels" width="100%"></a>
+  <br>
+  <sub><strong>Tiling and panels</strong> -- Hyprland tiling with btop, the widgets panel and the settings editor at once.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/desktop-scenes.webp"><img src="https://equisdots.github.io/web/previews/shots/desktop-scenes-1280.webp" alt="Scenes and monitors" width="100%"></a>
+  <br>
+  <sub><strong>Scenes and monitors</strong> -- a scene wallpaper reacting to the palette, with the system monitor and terminal UI on top.</sub>
+</p>
+
+<h3>Shell and settings</h3>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/bar.webp"><img src="https://equisdots.github.io/web/previews/shots/bar-1280.webp" alt="Bar islands" width="100%"></a>
+  <br>
+  <sub><strong>Bar islands</strong> -- workspaces, clock and status islands: palette-tinted, blur-aware and position-independent.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/settings-bar-engine.webp"><img src="https://equisdots.github.io/web/previews/shots/settings-bar-engine-1280.webp" alt="Bar engine" width="100%"></a>
+  <br>
+  <sub><strong>Bar engine</strong> -- pick an engine (Bar, ClassicBar) and preview its modules and zones live.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/settings-bar-position.webp"><img src="https://equisdots.github.io/web/previews/shots/settings-bar-position-1280.webp" alt="Bar position" width="100%"></a>
+  <br>
+  <sub><strong>Bar position</strong> -- move the bar to any edge; the preview reflects position and zones.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/settings-timex.webp"><img src="https://equisdots.github.io/web/previews/shots/settings-timex-640.webp" alt="Timex" width="100%"></a>
+  <br>
+  <sub><strong>Timex</strong> -- weather provider, city, forecast layout and calendar popup options.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/settings-monitors.webp"><img src="https://equisdots.github.io/web/previews/shots/settings-monitors-640.webp" alt="Monitors" width="100%"></a>
+  <br>
+  <sub><strong>Monitors</strong> -- resolution, refresh rate, VRR, bit depth, HDR and mirroring per output.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/settings-glass.webp"><img src="https://equisdots.github.io/web/previews/shots/settings-glass-1280.webp" alt="Glass and blur" width="100%"></a>
+  <br>
+  <sub><strong>Glass and blur</strong> -- translucency for popups, menus and the bar; blur comes from a Hyprland layer rule.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/widgets-panel.webp"><img src="https://equisdots.github.io/web/previews/shots/widgets-panel-640.webp" alt="Widgets panel" width="100%"></a>
+  <br>
+  <sub><strong>Widgets panel</strong> -- the floating hub: palettes, settings and desktop widgets one tap away.</sub>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/shots/app-launcher.webp"><img src="https://equisdots.github.io/web/previews/shots/app-launcher.webp" alt="App launcher" width="240"></a>
+  <br>
+  <sub><strong>App launcher</strong> -- fuzzy search over installed applications with instant launch.</sub>
+</p>
+
+</details>
+
+<details>
+<summary>gifs previews</summary>
+
+<p>Clips served from the <a href="https://equisdots.github.io/web/previews/#clips">website previews page</a> (hotlinked; no files are stored in this repository).</p>
+
+<h3>Desktop tour &middot; v1</h3>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part01.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part01.gif" alt="Desktop tour v1, clip 01" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part02.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part02.gif" alt="Desktop tour v1, clip 02" width="49%"></a>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part03.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part03.gif" alt="Desktop tour v1, clip 03" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part04.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part04.gif" alt="Desktop tour v1, clip 04" width="49%"></a>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part05.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part05.gif" alt="Desktop tour v1, clip 05" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part06.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part06.gif" alt="Desktop tour v1, clip 06" width="49%"></a>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part07.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part07.gif" alt="Desktop tour v1, clip 07" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part08.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part08.gif" alt="Desktop tour v1, clip 08" width="49%"></a>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part09.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part09.gif" alt="Desktop tour v1, clip 09" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part10.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part10.gif" alt="Desktop tour v1, clip 10" width="49%"></a>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part11.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part11.gif" alt="Desktop tour v1, clip 11" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part12.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part12.gif" alt="Desktop tour v1, clip 12" width="49%"></a>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part13.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part13.gif" alt="Desktop tour v1, clip 13" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v1-part14.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v1-part14.gif" alt="Desktop tour v1, clip 14" width="49%"></a>
+</p>
+
+<h3>Desktop tour &middot; v2</h3>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v2-part01.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v2-part01.gif" alt="Desktop tour v2, clip 01" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v2-part02.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v2-part02.gif" alt="Desktop tour v2, clip 02" width="49%"></a>
+</p>
+
+<p align="center">
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v2-part03.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v2-part03.gif" alt="Desktop tour v2, clip 03" width="49%"></a>
+  <a href="https://equisdots.github.io/web/previews/clips/tour-v2-part04.mp4"><img src="https://equisdots.github.io/web/previews/clips/gif/tour-v2-part04.gif" alt="Desktop tour v2, clip 04" width="49%"></a>
+</p>
+
+</details>
 
 ---
 
