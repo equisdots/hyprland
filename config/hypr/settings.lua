@@ -22,10 +22,31 @@ hl.config({
         extend_border_grab_area = 30,
         allow_tearing = false,
 
+        -- Snap floating windows to the monitor edges, the gaps and to each
+        -- other while dragging/resizing.
+        snap = {
+            enabled     = true,
+            monitor_gap = 10,
+            window_gap  = 10,
+        },
+
         col = {
             active_border   = X.active_border,
             inactive_border = X.inactive_border,
         },
+    },
+})
+
+-- Binds behaviour: hide the special workspace on change, cycle focus under
+-- fullscreen, and stop the mouse from stealing the workspace while a bind is
+-- held. (Workspace switching here is script-driven via qs_manager.sh, so the
+-- workspace_back_and_forth / allow_workspace_cycles options are intentionally
+-- NOT set: they would be inert.)
+hl.config({
+    binds = {
+        hide_special_on_workspace_change = true,
+        movefocus_cycles_fullscreen      = true,
+        pass_mouse_when_bound            = true,
     },
 })
 
@@ -36,6 +57,10 @@ hl.config({
         active_opacity   = 0.85,
         inactive_opacity = 0.80,
         fullscreen_opacity = 1.0,
+
+        -- Darken unfocused windows a touch so focus reads at a glance.
+        dim_inactive = true,
+        dim_strength = 0.15,
 
         shadow = {
             enabled      = true,
@@ -100,12 +125,15 @@ hl.config({
         preserve_split = true,
         smart_split    = false,
         smart_resizing = true,
+        -- Scratchpads (special workspaces) render slightly smaller, floating.
+        special_scale_factor = 0.85,
     },
 })
 
 hl.config({
     master = {
         orientation = "left",
+        special_scale_factor = 0.85,
     },
 })
 
