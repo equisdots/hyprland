@@ -20,6 +20,7 @@ require("windowrules")  -- Window rules (hl.window_rule)
 require("layers")       -- Layer rules: backdrop blur for the shell surfaces (glass)
 require("workspaces")   -- Workspace rules & scratchpads (hl.workspace_rule)
 require("autostart")    -- Startup applications (hl.on "hyprland.start")
+require("plugins").load() -- Installed plugins (enabled ones run their hypr.lua)
 
 -- ┌───────────────────────────────────────────────────────────────────────────┐
 -- │ RUNTIME OVERRIDES                                                         │

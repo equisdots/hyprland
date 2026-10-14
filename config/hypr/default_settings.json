@@ -7,6 +7,7 @@
   "language": "",
   "kbOptions": "grp:alt_shift_toggle",
   "barEngine": "bar",
+  "plugins": {},
   "mascots": {
     "enabled": true,
     "size": 1.1,
