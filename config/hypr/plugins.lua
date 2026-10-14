@@ -21,6 +21,8 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 
 local json = require("lib.json")
+local semver = require("lib.semver")
+local equisdots = require("lib.equisdots")
 
 local M = {}
 
@@ -40,6 +42,28 @@ local MANAGED_DIR = env("EQUISDOTS_PLUGINS_DIR", config_dir .. "/hypr/plugins")
 local USER_DIR = env("EQUISDOTS_PLUGINS_USER", config_dir .. "/hypr/plugins-user")
 local SETTINGS_PATH = env("EQUISDOTS_SETTINGS", config_dir .. "/hypr/settings.json")
 local REPORT_PATH = env("EQUISDOTS_PLUGINS_REPORT", cache_dir .. "/equisdots/plugins-report.json")
+
+-- Host API version (equisdots/plugin-api → plugin-api.json), read from the
+-- deployed shell tree. Missing → nil → compat is unverifiable (load anyway).
+local API_PATH = env("EQUISDOTS_API_FILE", config_dir .. "/hypr/scripts/quickshell/plugin-api.json")
+local HOST_API = (function()
+    local d = json.decode_file(API_PATH)
+    return (type(d) == "table") and d.api or nil
+end)()
+
+-- Compat gate (mirrors equisdots/plugin-api/scripts/plugins_compat.sh). Only
+-- a *violated* declared range blocks loading; unknown/unparsable loads.
+local function compatible(manifest)
+    local c = manifest.compat
+    if type(c) ~= "table" then return true, "" end
+    if type(c.host) == "string" and c.host ~= "" and HOST_API ~= nil then
+        local rc = semver.satisfies(HOST_API, c.host)
+        if rc == 1 then
+            return false, "requires host " .. c.host .. " (this host provides " .. HOST_API .. ")"
+        end
+    end
+    return true, ""
+end
 
 local function list_dirs(base)
     local dirs = {}
@@ -85,53 +109,8 @@ local function resolve_enabled(manifest, settings)
 end
 
 -- ── SDK (injected into each fragment as `...`) ───────────────────────────
-local function make_sdk(manifest, dir, report)
-    local hl_ = hl
-    local sdk = {
-        id = manifest.id,
-        dir = dir,
-    }
-
-    function sdk.script(name)
-        return dir .. "/scripts/" .. tostring(name)
-    end
-
-    function sdk.exec(cmd)
-        return hl_.dsp.exec_cmd(tostring(cmd))
-    end
-
-    function sdk.bind(key, dispatcher, opts)
-        local clean
-        local label
-        if type(opts) == "table" then
-            label = opts.label
-            clean = {}
-            for k, v in pairs(opts) do
-                if k ~= "label" then
-                    clean[k] = v
-                end
-            end
-            if next(clean) == nil then
-                clean = nil
-            end
-        end
-        if clean ~= nil then
-            hl_.bind(key, dispatcher, clean)
-        else
-            hl_.bind(key, dispatcher)
-        end
-        report.binds[#report.binds + 1] = {
-            key = tostring(key),
-            label = tostring(label or key),
-        }
-    end
-
-    function sdk.log(msg)
-        report.logs[#report.logs + 1] = tostring(msg)
-    end
-
-    return sdk
-end
+-- Provided by the vendored SDK (equisdots/plugin-sdk → lib/equisdots.lua).
+-- equisdots.make(manifest, dir, report, hl) returns the `mod` table.
 
 -- ── report (~/.cache/equisdots/plugins-report.json) ─────────────────────
 local function esc(s)
@@ -216,23 +195,29 @@ function M.load()
             if not enabled then
                 entry.status = "disabled"
             else
-                local frag = io.open(dir .. "/hypr.lua", "r")
-                if not frag then
-                    entry.status = "ok" -- no hypr fragment: nothing to run
+                local okc, creason = compatible(manifest)
+                if not okc then
+                    entry.status = "incompatible"
+                    entry.error = creason
                 else
-                    frag:close()
-                    local chunk, cerr = loadfile(dir .. "/hypr.lua")
-                    if not chunk then
-                        entry.status = "error"
-                        entry.error = tostring(cerr)
+                    local frag = io.open(dir .. "/hypr.lua", "r")
+                    if not frag then
+                        entry.status = "ok" -- no hypr fragment: nothing to run
                     else
-                        local sdk = make_sdk(manifest, dir, entry)
-                        local ok, err = pcall(chunk, sdk)
-                        if ok then
-                            entry.status = "ok"
-                        else
+                        frag:close()
+                        local chunk, cerr = loadfile(dir .. "/hypr.lua")
+                        if not chunk then
                             entry.status = "error"
-                            entry.error = tostring(err)
+                            entry.error = tostring(cerr)
+                        else
+                            local sdk = equisdots.make(manifest, dir, entry, hl)
+                            local ok, err = pcall(chunk, sdk)
+                            if ok then
+                                entry.status = "ok"
+                            else
+                                entry.status = "error"
+                                entry.error = tostring(err)
+                            end
                         end
                     end
                 end
