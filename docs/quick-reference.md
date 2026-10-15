@@ -21,7 +21,7 @@
 | SUPER + P | Toggle movie widget |
 | SUPER + B | Toggle battery status |
 | SUPER + W | Toggle wallpaper picker |
-| SUPER + S | Toggle calendar |
+| SUPER + S | Toggle calendar (timex plugin) |
 | SUPER + N | Toggle network panel |
 | SUPER + V | Toggle volume control |
 | SUPER + H | Toggle guide panel |
@@ -34,7 +34,7 @@
 | SUPER + X | Toggle Stewart (ambient visualizer) |
 | SUPER + Y | Toggle quick notes |
 | SUPER + I | Toggle system monitor (CPU/RAM/disk) |
-| SUPER + O | Toggle RSS reader |
+| SUPER + O | Toggle RSS reader (rss-reader plugin) |
 | SUPER + ' | Toggle file search |
 
 ## Window Management
