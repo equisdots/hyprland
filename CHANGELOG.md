@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026-10-15]
+
+### Changed
+- **Screenshots moved to the `screenshots` plugin**: the Print keybinds and `scripts/screenshot.sh` left the core config; the plugin's `hypr.lua` provides the same binds (labels included) and `dots` installs it by default. Users keep the binds with no action.
+
+### Removed
+- `scripts/screenshot.sh` and the SCREENSHOTS keybind block (now `plugins/screenshots` in the equisdots plugin registry).
+
 ## [2026-10-02]
 
 ### Added

@@ -146,7 +146,7 @@ behavior below is used unchanged. Force the classic behavior on any rig with
 | Script | Location | Purpose |
 |--------|----------|---------|
 | `qs_manager.sh` | `~/.config/hypr/scripts/` | IPC manager for QuickShell widgets |
-| `screenshot.sh` | `~/.config/hypr/scripts/` | Screenshot + recording with virtual audio |
+| `screenshot.sh` | `~/.config/hypr/plugins/screenshots/scripts/` (plugin) | Screenshot + recording with virtual audio |
 | `gpu-mode.sh` | `~/.config/hypr/scripts/` | NVIDIA Optimus mode switcher |
 | `monitor-manager.sh` | `~/.config/hypr/scripts/` | Multi-monitor layout management |
 | `workspaces.sh` | `~/.config/hypr/scripts/` | Workspace event listener daemon |
