@@ -8,45 +8,6 @@
   "kbOptions": "grp:alt_shift_toggle",
   "barEngine": "bar",
   "plugins": {},
-  "mascots": {
-    "enabled": true,
-    "size": 1.1,
-    "species": [
-      "battery",
-      "watcher",
-      "github"
-    ],
-    "count": 1,
-    "position": "top-center",
-    "appearance": "notch",
-    "notchWidth": 280,
-    "notchReserve": true,
-    "notchHeight": 27,
-    "notchOffset": -12,
-    "dock": {
-      "size": "wide",
-      "width": 0,
-      "style": "joined",
-      "columns": 6,
-      "rows": 3,
-      "hero": true,
-      "quick": true,
-      "search": true
-    },
-    "watcher": {
-      "format": "12",
-      "seconds": true,
-      "speed": 0.7,
-      "moods": true,
-      "eye": false
-    },
-    "options": {
-      "battery": {
-        "color": "blue",
-        "size": 1.1
-      }
-    }
-  },
   "glass": {
     "enabled": false,
     "opacity": 0.85
