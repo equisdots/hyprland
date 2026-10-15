@@ -35,7 +35,7 @@ hl.bind(mod .. "C", run(scripts .. "/qs_manager.sh", "toggle clipboard"))
 hl.bind(mod .. "D", run("bash " .. scripts .. "/qs_manager.sh", "toggle applauncher"))
 hl.bind(mod .. "B", run("bash " .. scripts .. "/qs_manager.sh", "toggle battery"))
 hl.bind(mod .. "W", run("bash " .. scripts .. "/qs_manager.sh", "toggle wallpaper"))
-hl.bind(mod .. "S", run("bash " .. scripts .. "/qs_manager.sh", "toggle calendar"))
+-- SUPER + S (calendar/timex) comes from the `timex` plugin's hypr.lua.
 hl.bind(mod .. "N", run("bash " .. scripts .. "/qs_manager.sh", "toggle network"))
 hl.bind(mod .. "V", run("bash " .. scripts .. "/qs_manager.sh", "toggle volume"))
 hl.bind(mod .. "H", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor about"))
@@ -46,7 +46,7 @@ hl.bind(mod .. "U", run("bash " .. scripts .. "/qs_manager.sh", "toggle updater"
 
 hl.bind(mod .. "Y", run("bash " .. scripts .. "/qs_manager.sh", "toggle quicknotes"))
 hl.bind(mod .. "I", run("bash " .. scripts .. "/qs_manager.sh", "toggle system-monitor"))
-hl.bind(mod .. "O", run("bash " .. scripts .. "/qs_manager.sh", "toggle rss-reader"))
+-- SUPER + O (RSS reader) comes from the `rss-reader` plugin's hypr.lua.
 hl.bind(mod .. "apostrophe", run("bash " .. scripts .. "/qs_manager.sh", "toggle file-search"))
 hl.bind(mod .. "SHIFT + B", run("bash " .. scripts .. "/qs_manager.sh", "toggle window-controls"))
 hl.bind(mod .. "SHIFT + P", run("bash " .. scripts .. "/qs_manager.sh", "toggle palette"))
