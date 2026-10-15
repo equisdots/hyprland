@@ -17,7 +17,7 @@
 | Shortcut | Action |
 |----------|--------|
 | SUPER + M | Toggle music player |
-| SUPER + C | Toggle clipboard manager |
+| SUPER + C | Toggle clipboard manager (clipboard plugin) |
 | SUPER + P | Toggle movie widget |
 | SUPER + B | Toggle battery status |
 | SUPER + W | Toggle wallpaper picker |
@@ -32,7 +32,7 @@
 | SUPER + SHIFT + P | Toggle palette widget (position: `settings.widgets.palette.position`) |
 | SUPER + U | Toggle system updater |
 | SUPER + X | Toggle Stewart (ambient visualizer) |
-| SUPER + Y | Toggle quick notes |
+| SUPER + Y | Toggle quick notes (quicknotes plugin) |
 | SUPER + I | Toggle system monitor (CPU/RAM/disk) |
 | SUPER + O | Toggle RSS reader (rss-reader plugin) |
 | SUPER + ' | Toggle file search |

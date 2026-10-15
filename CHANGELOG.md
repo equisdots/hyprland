@@ -5,6 +5,7 @@
 ### Changed
 - **Screenshots moved to the `screenshots` plugin**: the Print keybinds and `scripts/screenshot.sh` left the core config; the plugin's `hypr.lua` provides the same binds (labels included) and `dots` installs it by default. Users keep the binds with no action.
 - **Timex and RSS Reader binds moved to plugins**: `SUPER + S` and `SUPER + O` now come from the `timex` and `rss-reader` plugins' `hypr.lua` (installed by default).
+- **Clipboard, QuickNotes and File Search binds moved to plugins**: `SUPER + C`, `SUPER + Y` and `SUPER + apostrophe` come from the `clipboard`, `quicknotes` and `file-search` plugins' `hypr.lua` (installed by default).
 
 ### Removed
 - `scripts/screenshot.sh` and the SCREENSHOTS keybind block (now `plugins/screenshots` in the equisdots plugin registry).
