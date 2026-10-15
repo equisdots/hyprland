@@ -93,7 +93,9 @@ end
 local function resolve_enabled(manifest, settings)
     local toggle = manifest.toggle
     if type(toggle) ~= "string" or toggle == "" then
-        toggle = "plugins." .. manifest.id .. ".enabled"
+        local scope = manifest.scope
+        if type(scope) ~= "string" or scope == "" then scope = "plugins." .. manifest.id end
+        toggle = scope .. ".enabled"
     end
     local cur = settings
     for part in toggle:gmatch("[^.]+") do
@@ -167,7 +169,6 @@ end
 
 -- ── load ──────────────────────────────────────────────────────────────────
 function M.load()
-    local settings = json.decode_file(SETTINGS_PATH) or {}
     local results = {}
     local seen = {}
 
@@ -183,7 +184,7 @@ function M.load()
         local manifest = read_manifest(dir)
         if manifest and not seen[manifest.id] then
             seen[manifest.id] = true
-            local enabled, toggle = resolve_enabled(manifest, settings)
+            local enabled, toggle = resolve_enabled(manifest, json.decode_file(dir .. "/settings.json") or {})
             local entry = {
                 id = manifest.id,
                 dir = dir,

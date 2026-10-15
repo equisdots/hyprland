@@ -40,6 +40,7 @@ hl.bind(mod .. "N", run("bash " .. scripts .. "/qs_manager.sh", "toggle network"
 hl.bind(mod .. "V", run("bash " .. scripts .. "/qs_manager.sh", "toggle volume"))
 hl.bind(mod .. "H", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor about"))
 hl.bind(mod .. "SHIFT + S", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor"))
+hl.bind(mod .. "SHIFT + M", run("bash " .. scripts .. "/qs_manager.sh", "toggle plugins"))
 hl.bind(mod .. "SHIFT + E", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor bar"))
 hl.bind(mod .. "SHIFT + T", run("bash " .. scripts .. "/qs_manager.sh", "toggle focustime"))
 hl.bind(mod .. "U", run("bash " .. scripts .. "/qs_manager.sh", "toggle updater"))
