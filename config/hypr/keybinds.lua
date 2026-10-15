@@ -79,14 +79,8 @@ hl.bind(mod .. "Escape", run(scripts .. "/exit.sh"))
 hl.bind(mod .. "CTRL + L", hl.dsp.exec_cmd("systemctl suspend"))
 hl.bind(mod .. "CTRL + SHIFT + L", hl.dsp.exec_cmd("systemctl poweroff"))
 
--- ┌───────────────────────────────────────────────────────────────────────────┐
--- │ SCREENSHOTS                                                               │
--- └───────────────────────────────────────────────────────────────────────────┘
-
-hl.bind("Print", run(scripts .. "/screenshot.sh"), { locked = true })
-hl.bind("SHIFT_L + Print", run(scripts .. "/screenshot.sh", "--edit"), { locked = true })
-hl.bind(mod .. "Print", run(scripts .. "/screenshot.sh", "--full"), { locked = true })
-hl.bind(mod .. "SHIFT + Print", run(scripts .. "/screenshot.sh", "--full --edit"), { locked = true })
+-- Print binds (screenshots + recording) moved to the `screenshots` plugin:
+-- hypr.lua in ~/.config/hypr/plugins/screenshots/ (deployed by dots).
 
 -- ┌───────────────────────────────────────────────────────────────────────────┐
 -- │ MULTIMEDIA KEYS                                                           │
