@@ -69,7 +69,7 @@
 <p align="center">
   <a href="https://equisdots.github.io/web/previews/shots/settings-bar-engine.webp"><img src="https://equisdots.github.io/web/previews/shots/settings-bar-engine-1280.webp" alt="Bar engine" width="100%"></a>
   <br>
-  <sub><strong>Bar engine</strong> -- pick an engine (Bar, ClassicBar) and preview its modules and zones live.</sub>
+  <sub><strong>Bar</strong> -- master switch, position, zones and modules, configured live in the settings panel.</sub>
 </p>
 
 <p align="center">

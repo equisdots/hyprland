@@ -6,7 +6,6 @@
   "wallpaperDir": "~/.config/hypr/wallpapers",
   "language": "",
   "kbOptions": "grp:alt_shift_toggle",
-  "barEngine": "bar",
   "plugins": {},
   "glass": {
     "enabled": false,
@@ -22,6 +21,7 @@
     "radius": 18
   },
   "bar": {
+    "enabled": true,
     "position": "left",
     "palette": "x",
     "thickness": 48,

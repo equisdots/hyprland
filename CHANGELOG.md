@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026-10-16]
+
+### Changed
+- `default_settings.json`: dropped the obsolete `barEngine` key and added `bar.enabled` (the bar's master switch, toggled from the shell's Bar group → General).
+
 ## [2026-10-15]
 
 ### Changed
