@@ -4,6 +4,7 @@
 
 ### Added
 - **Id-integrity reporting in the plugin loader**: a directory whose manifest id is already provided by another one is recorded as `status: "collision"` in `plugins-report.json` (first scanned wins — the user dir beats the managed one by design; collisions are never silent). New local test: `tests/plugins_loader_test.sh` (fixed fixtures + stubbed Hyprland API; no CI).
+- **Editable plugin keybinds**: `mod.bind` records stable bind ids (+ default keys) and forwards the label to hyprctl as the bind description; user overrides (`<scope>.binds.<id>` = `"KEY"` | `false` in the plugin's own settings file) are applied when the fragment evaluates — the plugin owns the action, the user owns the key. Disabled plugins keep their last known binds in the report (`bindsCached`). The loader test covers rebind, mute and carry-over.
 
 ### Changed
 - `default_settings.json`: dropped the obsolete `barEngine` key and added `bar.enabled` (the bar's master switch, toggled from the shell's Bar group → General).

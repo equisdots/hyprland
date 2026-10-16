@@ -20,6 +20,11 @@
 -- provided by another one is recorded as status "collision" in the report
 -- (first scanned wins — the user dir beats the managed one by design).
 --
+-- User bind overrides live in the plugin's own settings file
+-- (<scope>.binds.<bind-id> = "KEY" to rebind, or false to disable that single
+-- bind) and are applied when the fragment evaluates — the plugin owns the
+-- action, the user owns the key (keybinds editor plugin).
+--
 -- Test overrides: EQUISDOTS_PLUGINS_DIR, EQUISDOTS_PLUGINS_USER,
 -- EQUISDOTS_SETTINGS, EQUISDOTS_PLUGINS_REPORT.
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -94,12 +99,17 @@ local function read_manifest(dir)
     return data
 end
 
+-- The plugin's settings namespace (manifest "scope" or plugins.<id>).
+local function resolve_scope(manifest)
+    local scope = manifest.scope
+    if type(scope) ~= "string" or scope == "" then scope = "plugins." .. manifest.id end
+    return scope
+end
+
 local function resolve_enabled(manifest, settings)
     local toggle = manifest.toggle
     if type(toggle) ~= "string" or toggle == "" then
-        local scope = manifest.scope
-        if type(scope) ~= "string" or scope == "" then scope = "plugins." .. manifest.id end
-        toggle = scope .. ".enabled"
+        toggle = resolve_scope(manifest) .. ".enabled"
     end
     local cur = settings
     for part in toggle:gmatch("[^.]+") do
@@ -112,6 +122,19 @@ local function resolve_enabled(manifest, settings)
         return cur, toggle
     end
     return manifest.defaultEnabled == true, toggle
+end
+
+-- User bind overrides: <scope>.binds in the plugin's own settings file.
+-- Values: "NEW KEY" (rebind that bind) or false (disable it while the plugin
+-- itself stays enabled). Missing table -> no overrides.
+local function resolve_binds(manifest, settings)
+    local cur = settings
+    for part in resolve_scope(manifest):gmatch("[^.]+") do
+        if type(cur) ~= "table" then return {} end
+        cur = cur[part]
+    end
+    if type(cur) == "table" and type(cur.binds) == "table" then return cur.binds end
+    return {}
 end
 
 -- ── SDK (injected into each fragment as `...`) ───────────────────────────
@@ -133,16 +156,26 @@ local function report_json(results)
             '"id":"' .. esc(r.id) .. '"',
             '"status":"' .. esc(r.status) .. '"',
             '"dir":"' .. esc(r.dir) .. '"',
+            '"scope":"' .. esc(r.scope) .. '"',
             '"toggle":"' .. esc(r.toggle) .. '"',
             '"enabled":' .. tostring(r.enabled == true),
         }
+        if r.bindsCached then
+            fields[#fields + 1] = '"bindsCached":true'
+        end
         if r.error then
             fields[#fields + 1] = '"error":"' .. esc(r.error) .. '"'
         end
         if r.binds and #r.binds > 0 then
             local bs = {}
             for _, b in ipairs(r.binds) do
-                bs[#bs + 1] = '{"key":"' .. esc(b.key) .. '","label":"' .. esc(b.label) .. '"}'
+                bs[#bs + 1] = '{"id":"' .. esc(b.id) .. '"'
+                    .. ',"key":"' .. esc(b.key) .. '"'
+                    .. ',"defaultKey":"' .. esc(b.defaultKey or b.key) .. '"'
+                    .. ',"label":"' .. esc(b.label) .. '"'
+                    .. (b.overridden and ',"overridden":true' or "")
+                    .. (b.disabled and ',"disabled":true' or "")
+                    .. '}'
             end
             fields[#fields + 1] = '"binds":[' .. table.concat(bs, ",") .. ']'
         end
@@ -176,6 +209,17 @@ function M.load()
     local results = {}
     local seen = {}
 
+    -- Previous report: a disabled/incompatible/erroring plugin keeps its LAST
+    -- KNOWN binds visible (marked bindsCached) — the keybinds editor can show
+    -- what would come back before re-enabling.
+    local prev_by_id = {}
+    local prev = json.decode_file(REPORT_PATH)
+    if type(prev) == "table" then
+        for _, e in ipairs(prev) do
+            if type(e) == "table" and type(e.id) == "string" then prev_by_id[e.id] = e end
+        end
+    end
+
     local dirs = {}
     for _, d in ipairs(list_dirs(USER_DIR)) do
         dirs[#dirs + 1] = d
@@ -188,10 +232,12 @@ function M.load()
         local manifest = read_manifest(dir)
         if manifest and not seen[manifest.id] then
             seen[manifest.id] = dir
-            local enabled, toggle = resolve_enabled(manifest, json.decode_file(dir .. "/settings.json") or {})
+            local psettings = json.decode_file(dir .. "/settings.json") or {}
+            local enabled, toggle = resolve_enabled(manifest, psettings)
             local entry = {
                 id = manifest.id,
                 dir = dir,
+                scope = resolve_scope(manifest),
                 toggle = toggle,
                 enabled = enabled,
                 binds = {},
@@ -215,7 +261,8 @@ function M.load()
                             entry.status = "error"
                             entry.error = tostring(cerr)
                         else
-                            local sdk = equisdots.make(manifest, dir, entry, hl)
+                            local sdk = equisdots.make(manifest, dir, entry, hl,
+                                                      resolve_binds(manifest, psettings))
                             local ok, err = pcall(chunk, sdk)
                             if ok then
                                 entry.status = "ok"
@@ -227,6 +274,15 @@ function M.load()
                     end
                 end
             end
+            -- Carry the last known binds over when this load produced none
+            -- (disabled / incompatible / error): the editor keeps showing them.
+            if entry.status ~= "ok" and #entry.binds == 0 then
+                local p = prev_by_id[manifest.id]
+                if p and type(p.binds) == "table" and #p.binds > 0 then
+                    entry.binds = p.binds
+                    entry.bindsCached = true
+                end
+            end
             results[#results + 1] = entry
         elseif manifest then
             -- Id integrity (local, never silent): a second directory declares
@@ -236,6 +292,7 @@ function M.load()
             results[#results + 1] = {
                 id = manifest.id,
                 dir = dir,
+                scope = resolve_scope(manifest),
                 toggle = "",
                 enabled = false,
                 binds = {},
