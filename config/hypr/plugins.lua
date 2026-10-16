@@ -16,6 +16,10 @@
 -- and the outcome is written to ~/.cache/equisdots/plugins-report.json for
 -- the shell/CLI to surface.
 --
+-- Id integrity is never silent: a directory whose manifest id was already
+-- provided by another one is recorded as status "collision" in the report
+-- (first scanned wins — the user dir beats the managed one by design).
+--
 -- Test overrides: EQUISDOTS_PLUGINS_DIR, EQUISDOTS_PLUGINS_USER,
 -- EQUISDOTS_SETTINGS, EQUISDOTS_PLUGINS_REPORT.
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -183,7 +187,7 @@ function M.load()
     for _, dir in ipairs(dirs) do
         local manifest = read_manifest(dir)
         if manifest and not seen[manifest.id] then
-            seen[manifest.id] = true
+            seen[manifest.id] = dir
             local enabled, toggle = resolve_enabled(manifest, json.decode_file(dir .. "/settings.json") or {})
             local entry = {
                 id = manifest.id,
@@ -224,6 +228,21 @@ function M.load()
                 end
             end
             results[#results + 1] = entry
+        elseif manifest then
+            -- Id integrity (local, never silent): a second directory declares
+            -- an id already provided by another one (folder/id mismatch or a
+            -- copy across the two registry roots). The loser is recorded in
+            -- the report — `dots doctor` and the manager surface it.
+            results[#results + 1] = {
+                id = manifest.id,
+                dir = dir,
+                toggle = "",
+                enabled = false,
+                binds = {},
+                logs = {},
+                status = "collision",
+                error = "id already provided by " .. tostring(seen[manifest.id]),
+            }
         end
     end
 

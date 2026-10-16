@@ -2,6 +2,9 @@
 
 ## [2026-10-16]
 
+### Added
+- **Id-integrity reporting in the plugin loader**: a directory whose manifest id is already provided by another one is recorded as `status: "collision"` in `plugins-report.json` (first scanned wins — the user dir beats the managed one by design; collisions are never silent). New local test: `tests/plugins_loader_test.sh` (fixed fixtures + stubbed Hyprland API; no CI).
+
 ### Changed
 - `default_settings.json`: dropped the obsolete `barEngine` key and added `bar.enabled` (the bar's master switch, toggled from the shell's Bar group → General).
 
