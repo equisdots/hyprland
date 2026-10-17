@@ -1,6 +1,10 @@
 # Screenshot and Recording System
 
-The `screenshot.sh` script provides a comprehensive capture system with an interactive QuickShell overlay.
+The `screenshot.sh` script provides a comprehensive capture system with an
+interactive QuickShell overlay. It ships with the `screenshots` plugin
+(`~/.config/hypr/plugins/screenshots/`, installed by default through the
+equisdots plugin registry); the keybinds below come from the plugin's
+`hypr.lua`.
 
 ## QuickShell Overlay (ScreenshotOverlay.qml)
 

@@ -31,23 +31,24 @@ hl.bind(mod .. "period", hl.dsp.exec_cmd("rofi -show emoji -theme ~/.config/rofi
 
 hl.bind(mod .. "Q", hl.dsp.window.kill())
 hl.bind(mod .. "M", run("bash " .. scripts .. "/qs_manager.sh", "toggle music"))
-hl.bind(mod .. "C", run(scripts .. "/qs_manager.sh", "toggle clipboard"))
+-- SUPER + C (clipboard) comes from the `clipboard` plugin's hypr.lua.
 hl.bind(mod .. "D", run("bash " .. scripts .. "/qs_manager.sh", "toggle applauncher"))
 hl.bind(mod .. "B", run("bash " .. scripts .. "/qs_manager.sh", "toggle battery"))
 hl.bind(mod .. "W", run("bash " .. scripts .. "/qs_manager.sh", "toggle wallpaper"))
-hl.bind(mod .. "S", run("bash " .. scripts .. "/qs_manager.sh", "toggle calendar"))
+-- SUPER + S (calendar/timex) comes from the `timex` plugin's hypr.lua.
 hl.bind(mod .. "N", run("bash " .. scripts .. "/qs_manager.sh", "toggle network"))
 hl.bind(mod .. "V", run("bash " .. scripts .. "/qs_manager.sh", "toggle volume"))
 hl.bind(mod .. "H", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor about"))
 hl.bind(mod .. "SHIFT + S", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor"))
+hl.bind(mod .. "SHIFT + M", run("bash " .. scripts .. "/qs_manager.sh", "toggle plugins"))
 hl.bind(mod .. "SHIFT + E", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor bar"))
 hl.bind(mod .. "SHIFT + T", run("bash " .. scripts .. "/qs_manager.sh", "toggle focustime"))
 hl.bind(mod .. "U", run("bash " .. scripts .. "/qs_manager.sh", "toggle updater"))
 
-hl.bind(mod .. "Y", run("bash " .. scripts .. "/qs_manager.sh", "toggle quicknotes"))
+-- SUPER + Y (quicknotes) comes from the `quicknotes` plugin's hypr.lua.
 hl.bind(mod .. "I", run("bash " .. scripts .. "/qs_manager.sh", "toggle system-monitor"))
-hl.bind(mod .. "O", run("bash " .. scripts .. "/qs_manager.sh", "toggle rss-reader"))
-hl.bind(mod .. "apostrophe", run("bash " .. scripts .. "/qs_manager.sh", "toggle file-search"))
+-- SUPER + O (RSS reader) comes from the `rss-reader` plugin's hypr.lua.
+-- SUPER + apostrophe (file-search) comes from the `file-search` plugin's hypr.lua.
 hl.bind(mod .. "SHIFT + B", run("bash " .. scripts .. "/qs_manager.sh", "toggle window-controls"))
 hl.bind(mod .. "SHIFT + P", run("bash " .. scripts .. "/qs_manager.sh", "toggle palette"))
 hl.bind(mod .. "SHIFT + D", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor"))
@@ -79,14 +80,8 @@ hl.bind(mod .. "Escape", run(scripts .. "/exit.sh"))
 hl.bind(mod .. "CTRL + L", hl.dsp.exec_cmd("systemctl suspend"))
 hl.bind(mod .. "CTRL + SHIFT + L", hl.dsp.exec_cmd("systemctl poweroff"))
 
--- ┌───────────────────────────────────────────────────────────────────────────┐
--- │ SCREENSHOTS                                                               │
--- └───────────────────────────────────────────────────────────────────────────┘
-
-hl.bind("Print", run(scripts .. "/screenshot.sh"), { locked = true })
-hl.bind("SHIFT_L + Print", run(scripts .. "/screenshot.sh", "--edit"), { locked = true })
-hl.bind(mod .. "Print", run(scripts .. "/screenshot.sh", "--full"), { locked = true })
-hl.bind(mod .. "SHIFT + Print", run(scripts .. "/screenshot.sh", "--full --edit"), { locked = true })
+-- Print binds (screenshots + recording) moved to the `screenshots` plugin:
+-- hypr.lua in ~/.config/hypr/plugins/screenshots/ (deployed by dots).
 
 -- ┌───────────────────────────────────────────────────────────────────────────┐
 -- │ MULTIMEDIA KEYS                                                           │

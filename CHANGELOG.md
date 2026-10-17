@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026-10-16]
+
+### Added
+- **Id-integrity reporting in the plugin loader**: a directory whose manifest id is already provided by another one is recorded as `status: "collision"` in `plugins-report.json` (first scanned wins — the user dir beats the managed one by design; collisions are never silent). New local test: `tests/plugins_loader_test.sh` (fixed fixtures + stubbed Hyprland API; no CI).
+- **Editable plugin keybinds**: `mod.bind` records stable bind ids (+ default keys) and forwards the label to hyprctl as the bind description; user overrides (`<scope>.binds.<id>` = `"KEY"` | `false` in the plugin's own settings file) are applied when the fragment evaluates — the plugin owns the action, the user owns the key. Disabled plugins keep their last known binds in the report (`bindsCached`). The loader test covers rebind, mute and carry-over.
+
+### Changed
+- `default_settings.json`: dropped the obsolete `barEngine` key and added `bar.enabled` (the bar's master switch, toggled from the shell's Bar group → General).
+
+## [2026-10-15]
+
+### Changed
+- **Screenshots moved to the `screenshots` plugin**: the Print keybinds and `scripts/screenshot.sh` left the core config; the plugin's `hypr.lua` provides the same binds (labels included) and `dots` installs it by default. Users keep the binds with no action.
+- **Timex and RSS Reader binds moved to plugins**: `SUPER + S` and `SUPER + O` now come from the `timex` and `rss-reader` plugins' `hypr.lua` (installed by default).
+- **Clipboard, QuickNotes and File Search binds moved to plugins**: `SUPER + C`, `SUPER + Y` and `SUPER + apostrophe` come from the `clipboard`, `quicknotes` and `file-search` plugins' `hypr.lua` (installed by default).
+
+### Removed
+- `scripts/screenshot.sh` and the SCREENSHOTS keybind block (now `plugins/screenshots` in the equisdots plugin registry).
+
 ## [2026-10-02]
 
 ### Added

@@ -69,7 +69,7 @@
 <p align="center">
   <a href="https://equisdots.github.io/web/previews/shots/settings-bar-engine.webp"><img src="https://equisdots.github.io/web/previews/shots/settings-bar-engine-1280.webp" alt="Bar engine" width="100%"></a>
   <br>
-  <sub><strong>Bar engine</strong> -- pick an engine (Bar, ClassicBar) and preview its modules and zones live.</sub>
+  <sub><strong>Bar</strong> -- master switch, position, zones and modules, configured live in the settings panel.</sub>
 </p>
 
 <p align="center">
@@ -191,7 +191,7 @@ chmod +x install.sh
 <ul>
   <li><strong>Lua Config</strong> -- Hyprland 0.55+ <code>hyprland.lua</code> modular config (env, colors, keybinds, animations, rules, autostart) driven by the active palette.</li>
   <li><strong>12-Palette Theming</strong> -- <code>dock/palettes</code> drive the bar (equisdots/shell), window borders, kitty, starship, VS Code (color + icons) and Neovim in real time via <code>theme-sync</code> (equisdots/theme-sync).</li>
-  <li><strong>System Scripts</strong> -- Session helpers: screenshots and recording, scale menu, monitor manager, GPU modes, idle modes, lock, reload and the monthly updater.</li>
+  <li><strong>System Scripts</strong> -- Session helpers: scale menu, monitor manager, GPU modes, idle modes, lock, reload and the monthly updater.</li>
   <li><strong>NVIDIA Optimus</strong> -- GPU mode switching (integrated/hybrid/nvidia) via keybind or Rofi.</li>
   <li><strong>Multi-Monitor</strong> -- Auto-detection at max refresh rate (Lua wildcard), Rofi-based position/resolution/refresh rate manager.</li>
   <li><strong>Static SDDM Login</strong> -- minimal black/white greeter from <a href="https://github.com/equisdots/login">equisdots/login</a> (no palette sync, no runtime sudo); window borders and the lock follow the palette instead.</li>
