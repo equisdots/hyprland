@@ -8,9 +8,9 @@
 --   ~/.config/hypr/plugins/<id>/       managed by dots (rsync)
 --   ~/.config/hypr/plugins-user/<id>/  user-owned; wins on id collisions
 --
--- Enablement: settings.json — the manifest's "toggle" path when present, or
--- plugins.<id>.enabled by default; a missing key falls back to the manifest's
--- "defaultEnabled" (default false).
+-- Enablement is resolved from the plugin's OWN settings.json (the manifest's
+-- "toggle" path, default <scope>.enabled); a missing key falls back to the
+-- manifest's "defaultEnabled" (default false) — same source as the shell scan.
 --
 -- A failing plugin never aborts the config: every fragment runs under pcall
 -- and the outcome is written to ~/.cache/equisdots/plugins-report.json for
