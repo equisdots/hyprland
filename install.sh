@@ -728,7 +728,7 @@ theme_sync_run() {
     fi
 }
 
-# Custom neon cursor trail (shaders/x-glow.slang + x-trail.pipeline): needs
+# Custom lightning cursor trail (shaders/x-lightning.slang + x-trail.pipeline): needs
 # kitty >= 0.49 and the shader-slang compiler (`slangc`). theme-sync only
 # rewrites the palette include and the active border in kitty.conf, so the
 # shader wiring below survives every color switch.
@@ -763,6 +763,10 @@ install_kitty_shaders() {
         [ -f "$f" ] || continue
         cp -f "$f" "$dest/" && n=$((n + 1))
     done
+    if [ -f "$dest/x-glow.slang" ]; then
+        rm -f "$dest/x-glow.slang"
+        log "kitty shaders: removed legacy x-glow.slang"
+    fi
     log "kitty shaders: $n file(s) -> $dest"
     return 0
 }
@@ -785,7 +789,7 @@ ensure_kitty_shader_config() {
         added=1
     fi
     if [ "$added" -eq 1 ]; then
-        log "kitty shaders: enabled the neon trail in kitty.conf"
+        log "kitty shaders: enabled the lightning trail in kitty.conf"
     fi
     return 0
 }
