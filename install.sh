@@ -873,19 +873,38 @@ configure_zsh_login_shell() {
     return 0
 }
 
-# Add the starship init line to a rc file (idempotent; the upstream installer
-# only writes the theme aliases/export and never this line).
-ensure_starship_init() {
-    local rc="$1" shell="$2"
-    [ -f "$rc" ] || return 0
-    if grep -qF "starship init $shell" "$rc" 2>/dev/null; then
+# grml-zsh-config registers prompt_grml_precmd, which rewrites PROMPT on every
+# precmd and hides starship's prompt. Drop those hooks after starship init; the
+# removal is a no-op when grml is not installed.
+ensure_starship_grml_prompt_fix() {
+    local rc="$1"
+    local fix='typeset -ga precmd_functions; precmd_functions=(${precmd_functions:#prompt_grml*_precmd})'
+    if grep -qF "$fix" "$rc" 2>/dev/null; then
         return 0
     fi
     {
-        printf '\n# equisdots: starship prompt\n'
-        printf 'eval "$(starship init %s)"\n' "$shell"
+        printf '\n# equisdots: starship owns PROMPT (grml-zsh-config overrides it)\n'
+        printf '%s\n' "$fix"
     } >> "$rc"
-    log "starship: init line added to $rc"
+    log "starship: grml prompt hook disabled in $rc"
+}
+
+# Add the starship init line to a rc file (idempotent; the upstream installer
+# only writes the theme aliases/export and never this line). The init check and
+# the grml fix are independent: a base image may already ship the init line.
+ensure_starship_init() {
+    local rc="$1" shell="$2"
+    [ -f "$rc" ] || return 0
+    if ! grep -qF "starship init $shell" "$rc" 2>/dev/null; then
+        {
+            printf '\n# equisdots: starship prompt\n'
+            printf 'eval "$(starship init %s)"\n' "$shell"
+        } >> "$rc"
+        log "starship: init line added to $rc"
+    fi
+    if [ "$shell" = "zsh" ]; then
+        ensure_starship_grml_prompt_fix "$rc"
+    fi
 }
 
 install_starship_config() {
