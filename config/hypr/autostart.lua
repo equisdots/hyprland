@@ -46,7 +46,9 @@ hl.on("hyprland.start", function()
 
     -- Quickshell QML-based shell — SINGLE ENTRY POINT via Shell.qml
     -- Shell.qml loads Main.qml + TopBar.qml + Floating.qml internally
-    hl.exec_cmd("bash -c 'BIN=\"\"; command -v quickshell >/dev/null 2>&1 && BIN=quickshell || command -v qs >/dev/null 2>&1 && BIN=qs; [ -n \"$BIN\" ] && exec $BIN -p ~/.config/hypr/scripts/quickshell/Shell.qml || true'")
+    -- Scoped Qt logging rule: QWaylandTextInputv3 emits harmless focus
+    -- diagnostics when the shell panels open/close; keep the log clean.
+    hl.exec_cmd("bash -c 'BIN=\"\"; command -v quickshell >/dev/null 2>&1 && BIN=quickshell || command -v qs >/dev/null 2>&1 && BIN=qs; [ -n \"$BIN\" ] && exec env QT_LOGGING_RULES=qt.qpa.wayland.textinput.warning=false $BIN -p ~/.config/hypr/scripts/quickshell/Shell.qml || true'")
 
     -- Focus daemon
     hl.exec_cmd("python3 ~/.config/hypr/scripts/quickshell/ui/panels/focustime/focus_daemon.py &")
