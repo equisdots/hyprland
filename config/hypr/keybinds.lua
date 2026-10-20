@@ -14,14 +14,42 @@ local function run(script, args)
     return hl.dsp.exec_cmd(cmd)
 end
 
+-- Launch a new window of `class`, then float, center and resize it. Both apps
+-- keep their native WM class (VS Code ignores --class on Wayland), so the bar
+-- icons keep working without a shell-side mapping.
+local function openFloating(class, cmd, w, h)
+    local before = {}
+    for _, win in ipairs(hl.get_windows({ class = class })) do
+        before[win.address] = true
+    end
+    hl.dispatch(hl.dsp.exec_cmd(cmd))
+    local tries = 0
+    local timer
+    timer = hl.timer(function()
+        tries = tries + 1
+        for _, win in ipairs(hl.get_windows({ class = class })) do
+            if not before[win.address] then
+                local sel = "address:" .. win.address
+                hl.dispatch(hl.dsp.window.float({ window = sel, action = "enable" }))
+                hl.dispatch(hl.dsp.window.resize({ window = sel, x = w, y = h }))
+                hl.dispatch(hl.dsp.window.center({ window = sel }))
+                timer:set_enabled(false)
+                return
+            end
+        end
+        if tries >= 50 then timer:set_enabled(false) end
+    end, { timeout = 200, type = "repeat" })
+end
+
 -- ┌───────────────────────────────────────────────────────────────────────────┐
 -- │ APPLICATIONS                                                              │
 -- └───────────────────────────────────────────────────────────────────────────┘
 
 hl.bind(mod .. "Return", hl.dsp.exec_cmd(V.terminal))
 hl.bind(mod .. "T", hl.dsp.exec_cmd("kitty"))
--- Floating terminal: centered 900x560 (see windowrules.lua)
-hl.bind(mod .. "SHIFT + K", hl.dsp.exec_cmd("kitty --class floating-kitty"))
+-- Floating terminal / editor: launch, then float + center + resize the new window.
+hl.bind(mod .. "SHIFT + K", function() openFloating("kitty", "kitty", 900, 560) end)
+hl.bind(mod .. "SHIFT + D", function() openFloating("code-insiders", "code-insiders -n", 1200, 800) end)
 hl.bind(mod .. "SHIFT + Q", hl.dsp.exit())
 hl.bind(mod .. "E", hl.dsp.exec_cmd(V.fileMgr))
 hl.bind(mod .. "F", hl.dsp.exec_cmd(V.browser))
@@ -53,7 +81,7 @@ hl.bind(mod .. "I", run("bash " .. scripts .. "/qs_manager.sh", "toggle system-m
 -- SUPER + apostrophe (file-search) comes from the `file-search` plugin's hypr.lua.
 hl.bind(mod .. "SHIFT + B", run("bash " .. scripts .. "/qs_manager.sh", "toggle window-controls"))
 hl.bind(mod .. "SHIFT + P", run("bash " .. scripts .. "/qs_manager.sh", "toggle palette"))
-hl.bind(mod .. "SHIFT + D", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor"))
+-- SUPER + SHIFT + D is the floating VS Code Insiders (Applications); bar editor: SUPER + SHIFT + S.
 -- Panel Settings abierto directamente en la página Guide (info/paletas/about)
 hl.bind(mod .. "X", run("bash " .. scripts .. "/qs_manager.sh", "toggle bar-editor guide"))
 -- Terminal settings UI (xturing): every SUPER+SHIFT+D option from the terminal
