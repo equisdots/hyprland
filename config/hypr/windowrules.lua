@@ -17,6 +17,11 @@ hl.window_rule({ match = { class = "^(nwg-look)$" }, float = true })
 hl.window_rule({ match = { class = "^(qt5ct)$" }, float = true })
 hl.window_rule({ match = { class = "^(qt6ct)$" }, float = true })
 
+-- Floating terminal (SUPER + SHIFT + K)
+hl.window_rule({ match = { class = "^(floating-kitty)$" }, float = true })
+hl.window_rule({ match = { class = "^(floating-kitty)$" }, center = true })
+hl.window_rule({ match = { class = "^(floating-kitty)$" }, size = { 900, 560 } })
+
 -- File managers dialogs
 hl.window_rule({ match = { title = "^(Open File)(.*)$" }, float = true })
 hl.window_rule({ match = { title = "^(Open Folder)(.*)$" }, float = true })

@@ -20,6 +20,8 @@ end
 
 hl.bind(mod .. "Return", hl.dsp.exec_cmd(V.terminal))
 hl.bind(mod .. "T", hl.dsp.exec_cmd("kitty"))
+-- Floating terminal: centered 900x560 (see windowrules.lua)
+hl.bind(mod .. "SHIFT + K", hl.dsp.exec_cmd("kitty --class floating-kitty"))
 hl.bind(mod .. "SHIFT + Q", hl.dsp.exit())
 hl.bind(mod .. "E", hl.dsp.exec_cmd(V.fileMgr))
 hl.bind(mod .. "F", hl.dsp.exec_cmd(V.browser))
@@ -145,7 +147,7 @@ hl.bind(mod .. "SHIFT + down",  hl.dsp.window.move({ direction = "d" }))
 
 hl.bind(mod .. "SHIFT + H", hl.dsp.window.move({ direction = "l" }))
 hl.bind(mod .. "SHIFT + L", hl.dsp.window.move({ direction = "r" }))
-hl.bind(mod .. "SHIFT + K", hl.dsp.window.move({ direction = "u" }))
+-- SHIFT + K is the floating terminal (see Applications); SHIFT + up moves up.
 hl.bind(mod .. "SHIFT + J", hl.dsp.window.move({ direction = "d" }))
 
 -- ┌───────────────────────────────────────────────────────────────────────────┐
