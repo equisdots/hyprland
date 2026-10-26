@@ -115,7 +115,7 @@ behavior below is used unchanged. Force the classic behavior on any rig with
 | Shortcut | Action |
 |----------|--------|
 | SUPER + W | Wallpaper picker |
-| SUPER + Z | Display scale picker (80% - 200%, scales apps and shell) |
+| SUPER + Z | Display scale picker (70% - 200%, scales apps and shell) |
 | SUPER + SHIFT + Z | Display scale: one step up |
 | SUPER + CTRL + Z | Display scale: one step down |
 | SUPER + R | Reload QuickShell colors |

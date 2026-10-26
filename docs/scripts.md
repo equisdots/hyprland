@@ -24,7 +24,7 @@ All scripts reside in the repository root `scripts/` directory and are deployed 
 | `brightness.sh` | Controls display brightness via `brightnessctl` (internal backlight) with fallback to `ddcutil` (external monitors via DDC/CI). Sends desktop notifications with percentage. |
 | `volume.sh` | Controls audio volume via `pamixer`. Sends desktop notifications with percentage and mute state. |
 | `volume_listener.sh` | Listens to PipeWire events via `pactl subscribe`. Triggers `swayosd-client` on volume changes without altering levels. Prevents duplicate popups from the same device. |
-| `scale-menu.sh` | Rofi-based display scale selector (100%, 80%, 75%). Applies scale per-monitor through the Lua API (`hyprctl eval 'hl.monitor(...)'`) and records it in `settings.json`. |
+| `scale-menu.sh` | Rofi-based display scale selector (70%, 75%, 80%, 100%, 125%, 150%, 200%). Applies scale per-monitor through the Lua API (`hyprctl eval 'hl.monitor(...)'`) and records it in `settings.json`. |
 
 ## System Scripts
 

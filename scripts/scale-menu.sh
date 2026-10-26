@@ -17,10 +17,10 @@ fi
 
 SETTINGS="$HOME/.config/hypr/settings.json"
 
-# Only scales that divide 1920x1080 into whole pixels. Hyprland rejects anything
-# else and silently snaps to a nearby value, which makes the stored number and
-# the real one drift apart.
-LADDER="0.8 1.0 1.25 1.5 2.0"
+# Scales that keep the logical resolution usable at every size. 0.8 and above
+# divide 1920x1080 into whole pixels; 0.75 and 0.7 are the extra low-end rungs
+# (0.7 rounds logical pixels, so Hyprland may render slightly soft there).
+LADDER="0.7 0.75 0.8 1.0 1.25 1.5 2.0"
 
 mkdir -p "$(dirname "$SETTINGS")"
 [ ! -f "$SETTINGS" ] && echo '{}' > "$SETTINGS"
