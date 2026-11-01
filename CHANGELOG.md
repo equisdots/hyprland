@@ -10,7 +10,10 @@
 
 ### Changed
 - **Strict mode**: `reload.sh`, `lock.sh`, `brightness.sh`, `volume.sh` and `idle-mode.sh` use `set -euo pipefail`; `exit.sh` and `qs_manager.sh` use `-u`/`pipefail` without `-e` so they always reach their user-visible action. `docs/scripts.md` records the policy and the remaining per-script audit.
-- **Docs**: the README badge and feature list now say Hyprland 0.57+ (Lua-only since 0.57), and the config guide notes that `.conf` no longer loads.
+- **Docs**: the README badge and feature list now say Hyprland 0.57+ (Lua-only since 0.57), the palette badge/feature now reflects the 155 available palettes (30 built-in + community), and the config guide notes that `.conf` no longer loads.
+
+### Documentation
+- **Testing section**: the README documents `tests/run.sh`, the five local suites, the syntax/config gate (`scripts/check.sh`) and `Hyprland --verify-config`, with the skip/exit behavior. No CI is involved.
 
 ### Fixed
 - **Hyprland 0.57 scratchpads**: the three `special:*` workspace rules used the deprecated `on_created_empty` key (three notices in `hyprctl deprecated-config`). On 0.57+ they now launch from the `workspace.created` event with the workspace's `is_empty` flag; 0.55-0.56 keep `on_created_empty`. New unit test: `tests/workspaces_created_handler_test.lua`.
