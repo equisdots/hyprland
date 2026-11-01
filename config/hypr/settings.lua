@@ -10,6 +10,11 @@
 -- ╚═══════════════════════════════════════════════════════════════════════════╝
 
 local X = require("colors")
+local semver = require("lib.semver")
+
+-- Hyprland 0.57 removed the hyprlang provider and deprecated/moved a few
+-- options. Keep the old keys only on <= 0.56 so both lines stay warning-free.
+local IS_057 = semver.satisfies(hl.version(), ">=0.57.0") == 0
 
 hl.config({
     general = {
@@ -125,17 +130,23 @@ hl.config({
         preserve_split = true,
         smart_split    = false,
         smart_resizing = true,
-        -- Scratchpads (special workspaces) render slightly smaller, floating.
-        special_scale_factor = 0.85,
     },
 })
 
 hl.config({
     master = {
         orientation = "left",
-        special_scale_factor = 0.85,
     },
 })
+
+-- 0.57 deprecates special_scale_factor (the scaling code was removed); the
+-- scratchpad inset is approximated with workspace gaps in workspaces.lua.
+if not IS_057 then
+    hl.config({
+        dwindle = { special_scale_factor = 0.85 },
+        master  = { special_scale_factor = 0.85 },
+    })
+end
 
 hl.config({
     misc = {
@@ -147,7 +158,6 @@ hl.config({
         mouse_move_enables_dpms   = true,
         key_press_enables_dpms    = true,
         always_follow_on_dnd      = true,
-        layers_hog_keyboard_focus = true,
         animate_manual_resizes    = true,
         animate_mouse_windowdragging = true,
         enable_swallow            = true,
@@ -155,6 +165,13 @@ hl.config({
         focus_on_activate         = false,
     },
 })
+
+-- 0.57 moved layers_hog_keyboard_focus into the `layers` category.
+if IS_057 then
+    hl.config({ layers = { layers_hog_keyboard_focus = true } })
+else
+    hl.config({ misc = { layers_hog_keyboard_focus = true } })
+end
 
 hl.config({
     xwayland = {
