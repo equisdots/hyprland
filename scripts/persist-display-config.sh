@@ -16,9 +16,16 @@
 # vrr: the live JSON exposes a bool, which cannot express 2 (fullscreen-only).
 # If settings.json ("monitors", written by the Settings panel) has an explicit
 # vrr for that monitor we respect it; otherwise the live bool is used.
+#
+# Strict mode: this is a one-shot generator. A failing hyprctl or invalid JSON
+# exits non-zero instead of writing a truncated layout; both callers
+# (monitor-manager.sh and scale-menu.sh) already guard the call with `|| true`.
+# The optional settings.json read is guarded because the file may not exist.
+
+set -euo pipefail
 
 JSON="$(hyprctl monitors -j 2>/dev/null)" \
-SETTINGS="$(cat "$HOME/.config/hypr/settings.json" 2>/dev/null)" \
+SETTINGS="$(cat "$HOME/.config/hypr/settings.json" 2>/dev/null || true)" \
 python3 - <<'PY'
 import json, os, sys
 

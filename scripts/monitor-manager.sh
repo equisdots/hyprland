@@ -10,6 +10,14 @@
 # ║   monitor-manager.sh          - Open Rofi monitor menu                   ║
 # ║   monitor-manager.sh info     - Show current monitor info                ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
+#
+# Strict mode: `-u`/`pipefail` only. This is an interactive rofi menu; adding
+# `-e` would abort on a cancelled/empty selection (rofi exits 1 when dismissed)
+# and on best-effort hyprctl/notification calls. Failures are handled locally or
+# are intentionally non-fatal. `$1` defaults to empty so a bare invocation still
+# opens the menu under `set -u`.
+
+set -uo pipefail
 
 # ────────────────────────────────────────────────────────────────────────────
 # Apply a monitor via the Lua API (Hyprland 0.55+ has no `hyprctl keyword`)
@@ -305,7 +313,7 @@ main_menu() {
 # Main
 # ────────────────────────────────────────────────────────────────────────────
 
-case "$1" in
+case "${1:-}" in
     info) show_info ;;
     *)    main_menu ;;
 esac

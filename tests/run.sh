@@ -40,6 +40,7 @@ else
 fi
 
 run bash tests/check_sh_test.sh
+run bash tests/installer_check_test.sh
 
 if command -v jq >/dev/null 2>&1; then
     run bash tests/plugins_loader_test.sh
