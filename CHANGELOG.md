@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026-11-01]
+
+### Fixed
+- **Hyprland 0.57 config error on `decoration.shadow.render_power`**: the shipped default was `5`, but Hyprland defines the option as `1..4`. Hyprland 0.57.0 began forwarding option ranges to the Lua config (`config/lua: fix forwarding of details to lua values`), so the previously silent value now surfaced as `error setting 'decoration.shadow.render_power': value 5 is more than the maximum of 4` on fresh installs. Capped at `4` (the allowed maximum); the shadow falloff is visually unchanged.
+
 ## [2026-10-16]
 
 ### Added
