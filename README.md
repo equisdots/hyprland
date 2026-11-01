@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/github/repo-size/equisdots/hyprland?style=flat-square&color=success" alt="Repo Size">
   <img src="https://img.shields.io/badge/Hyprland-v0.57+-8A2BE2?style=flat-square" alt="Hyprland">
   <img src="https://img.shields.io/badge/Arch_Linux-supported-1793D1?style=flat-square&logo=arch-linux" alt="Arch">
-  <img src="https://img.shields.io/badge/Palettes-12-FF69B4?style=flat-square" alt="Palettes">
+  <img src="https://img.shields.io/badge/Palettes-155-FF69B4?style=flat-square" alt="Palettes">
 </p>
 
 <p align="center">
@@ -190,7 +190,7 @@ chmod +x install.sh
 
 <ul>
   <li><strong>Lua Config</strong> -- Hyprland 0.57+ <code>hyprland.lua</code> modular config (Lua-only since 0.57) (env, colors, keybinds, animations, rules, autostart) driven by the active palette.</li>
-  <li><strong>12-Palette Theming</strong> -- <code>dock/palettes</code> drive the bar (equisdots/shell), window borders, kitty, starship, VS Code (color + icons) and Neovim in real time via <code>theme-sync</code> (equisdots/theme-sync).</li>
+  <li><strong>155-Palette Theming</strong> -- <code>dock/palettes</code> drive the bar (equisdots/shell), window borders, kitty, starship, VS Code (color + icons) and Neovim in real time via <code>theme-sync</code> (equisdots/theme-sync).</li>
   <li><strong>System Scripts</strong> -- Session helpers: scale menu, monitor manager, GPU modes, idle modes, lock, reload and the monthly updater.</li>
   <li><strong>NVIDIA Optimus</strong> -- GPU mode switching (integrated/hybrid/nvidia) via keybind or Rofi.</li>
   <li><strong>Multi-Monitor</strong> -- Auto-detection at max refresh rate (Lua wildcard), Rofi-based position/resolution/refresh rate manager.</li>
@@ -254,9 +254,27 @@ chmod +x install.sh
   <a href="SECURITY.md">Security</a>
 </p>
 
-## Local checks
+## Testing
 
-No CI: run the checks locally before pushing.
+There is no CI. Tests run locally and are the quality gate for the config, the
+installer and the local Lua/Bash helpers. The single entry point is:
+
+```bash
+tests/run.sh
+```
+
+| Suite | Covers |
+|---|---|
+| `tests/settings_version_gate_test.lua` | 0.56 vs 0.57 settings branches (`layers` vs `misc`, `special_scale_factor`) |
+| `tests/workspaces_created_handler_test.lua` | Scratchpad launch path (`workspace.created` + `is_empty` on 0.57, `on_created_empty` on 0.56) |
+| `tests/check_sh_test.sh` | `scripts/check.sh` repo/deployed layouts, failure propagation and missing-binary skip |
+| `tests/installer_check_test.sh` | `install.sh --dotfiles-only` in a temporary HOME with stubs, including the deployed self-check |
+| `tests/plugins_loader_test.sh` | Plugin loader ids, collisions, overrides and cached binds |
+
+`tests/run.sh` reports and skips suites whose environment is missing (for
+example no `lua`, `jq` or `luac`) and returns non-zero on a real failure.
+
+The syntax/config gate is separate:
 
 ```bash
 scripts/check.sh
@@ -264,6 +282,8 @@ scripts/check.sh
 
 - `luac -p` over every `config/**/*.lua` module.
 - `bash -n` over every shell script (`shellcheck`, advisory, when installed).
+- `Hyprland --verify-config` against the repo or the deployed config (0.57 also
+  validates option ranges).
 
 <h2 align="center" id="related-repos">Related Repos</h2>
 <ul>
