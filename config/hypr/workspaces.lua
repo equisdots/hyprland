@@ -23,6 +23,13 @@
 -- │ (the "description" field is the key, e.g. "Xiaomi ... 5275600003570").   │
 -- └───────────────────────────────────────────────────────────────────────────┘
 
+local semver = require("lib.semver")
+
+-- Hyprland 0.57 removed special_scale_factor (its scaling code is gone).
+-- Approximate the old 0.85 scratchpad inset with workspace gaps on 0.57+.
+local IS_057 = semver.satisfies(hl.version(), ">=0.57.0") == 0
+local SPECIAL_GAPS = IS_057 and 48 or nil
+
 -- --- LAPTOP (rightmost) + externals leftwards ---
 -- NOTE: same order/descriptions as ROSTER_DESCS in scripts/ws-desktops-lib.sh
 local MON_LAPTOP = "desc:BOE NE160WUM-NXA"
@@ -48,6 +55,6 @@ hl.workspace_rule({ workspace = "4", monitor = MON_LEFT4, default = true })
 -- │ automatically on first toggle via on_created_empty.                      │
 -- └───────────────────────────────────────────────────────────────────────────┘
 
-hl.workspace_rule({ workspace = "special:terminal", on_created_empty = "kitty --class scratchpad-terminal" })
-hl.workspace_rule({ workspace = "special:files", on_created_empty = "nautilus" })
-hl.workspace_rule({ workspace = "special:music", on_created_empty = "spotify" })
+hl.workspace_rule({ workspace = "special:terminal", on_created_empty = "kitty --class scratchpad-terminal", gaps_out = SPECIAL_GAPS })
+hl.workspace_rule({ workspace = "special:files", on_created_empty = "nautilus", gaps_out = SPECIAL_GAPS })
+hl.workspace_rule({ workspace = "special:music", on_created_empty = "spotify", gaps_out = SPECIAL_GAPS })

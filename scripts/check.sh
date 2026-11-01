@@ -3,6 +3,8 @@
 #   - Lua syntax for every config module with luac -p.
 #   - Bash syntax for the installer/scripts with bash -n.
 #   - shellcheck (advisory) when available.
+#   - Static Hyprland config gate with `Hyprland --verify-config` when the
+#     binary is installed (0.57 also validates option ranges).
 #
 # Usage: scripts/check.sh
 set -u
@@ -37,6 +39,22 @@ while IFS= read -r f; do
     fi
 done < <(find . -name '*.sh' -not -path './.git/*' | sort)
 echo "bash -n: $sh_total scripts checked"
+
+if command -v Hyprland >/dev/null 2>&1; then
+    verify_args=(--verify-config)
+    [ "$(id -u)" -eq 0 ] && verify_args=(--i-am-really-stupid "${verify_args[@]}")
+    verify_out="$(mktemp)"
+    if HYPRLAND_CONFIG="$PWD/config/hypr/hyprland.lua" Hyprland "${verify_args[@]}" >"$verify_out" 2>&1; then
+        echo "Hyprland: config OK"
+    else
+        echo "Hyprland --verify-config FAIL:"
+        sed 's/^/  /' "$verify_out"
+        fail=1
+    fi
+    rm -f "$verify_out"
+else
+    echo "Hyprland: SKIP (binary not found; install hyprland for the config gate)"
+fi
 
 if [ "$fail" -eq 0 ]; then
     echo "hyprland: checks OK"
