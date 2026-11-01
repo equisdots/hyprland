@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ Brightness Control Script                                                 ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
@@ -95,7 +96,7 @@ send_notification() {
     notify-send -h int:value:"$brightness" -h string:x-canonical-private-synchronous:brightness "Brightness" "$brightness%" -i "$icon" -t 1500
 }
 
-case "$1" in
+case "${1:-}" in
     up)
         if set_backlight up || set_ddc up; then
             send_notification

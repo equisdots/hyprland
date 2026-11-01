@@ -1238,6 +1238,22 @@ configure_pam_lock() {
     log "PAM service 'quickshell' written (system-auth based)."
 }
 
+# ── local config self-check ──────────────────────────────────────────────────
+# The deployed check.sh validates the live Lua config (syntax and, on 0.57,
+# option ranges) and skips cleanly when luac/Hyprland are unavailable. A
+# failure is a warning, not an abort: the files are already installed and the
+# user can fix them before logging in.
+run_config_check() {
+    local checker="$CONFIG_DIR/hypr/scripts/check.sh"
+    [ -f "$checker" ] || return 0
+    log "Running the local config self-check..."
+    if bash "$checker"; then
+        info "Config self-check passed"
+    else
+        warn "Config self-check reported problems (see above); review the config before logging in."
+    fi
+}
+
 main() {
     print_banner
 
@@ -1312,6 +1328,7 @@ main() {
     # Install dotfiles
     install_dotfiles
     write_version_state
+    run_config_check
 
     # Shell + palettes + engines (dots install). Under `dots system` the meta
     # installer runs the payload itself right after this script returns.
@@ -1477,6 +1494,7 @@ case "$1" in
     --dotfiles-only)
         backup_config
         install_dotfiles
+        run_config_check
         write_version_state
         install_user_payload
         install_kitty_config

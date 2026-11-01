@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/github/license/equisdots/hyprland?style=flat-square&color=blue" alt="License">
   <img src="https://img.shields.io/github/last-commit/equisdots/hyprland?style=flat-square&color=blueviolet" alt="Last Commit">
   <img src="https://img.shields.io/github/repo-size/equisdots/hyprland?style=flat-square&color=success" alt="Repo Size">
-  <img src="https://img.shields.io/badge/Hyprland-v0.55+-8A2BE2?style=flat-square" alt="Hyprland">
+  <img src="https://img.shields.io/badge/Hyprland-v0.57+-8A2BE2?style=flat-square" alt="Hyprland">
   <img src="https://img.shields.io/badge/Arch_Linux-supported-1793D1?style=flat-square&logo=arch-linux" alt="Arch">
   <img src="https://img.shields.io/badge/Palettes-12-FF69B4?style=flat-square" alt="Palettes">
 </p>
@@ -189,7 +189,7 @@ chmod +x install.sh
 <h2>Features</h2>
 
 <ul>
-  <li><strong>Lua Config</strong> -- Hyprland 0.55+ <code>hyprland.lua</code> modular config (env, colors, keybinds, animations, rules, autostart) driven by the active palette.</li>
+  <li><strong>Lua Config</strong> -- Hyprland 0.57+ <code>hyprland.lua</code> modular config (Lua-only since 0.57) (env, colors, keybinds, animations, rules, autostart) driven by the active palette.</li>
   <li><strong>12-Palette Theming</strong> -- <code>dock/palettes</code> drive the bar (equisdots/shell), window borders, kitty, starship, VS Code (color + icons) and Neovim in real time via <code>theme-sync</code> (equisdots/theme-sync).</li>
   <li><strong>System Scripts</strong> -- Session helpers: scale menu, monitor manager, GPU modes, idle modes, lock, reload and the monthly updater.</li>
   <li><strong>NVIDIA Optimus</strong> -- GPU mode switching (integrated/hybrid/nvidia) via keybind or Rofi.</li>

@@ -5,8 +5,15 @@
 ### Added
 - **Local config gate**: `scripts/check.sh` now runs `Hyprland --verify-config` when the binary is installed, catching parse and out-of-range errors before a reload; it skips cleanly when Hyprland is absent.
 - **Dual-layout check**: `scripts/check.sh` detects whether it runs from the repo checkout or the deployed `~/.config/hypr` tree, so the Lua scan and the `--verify-config` gate point at the right files in both layouts.
+- **Installer self-check**: `install.sh` runs the deployed `scripts/check.sh` after installing the dotfiles (both the full and `--dotfiles-only` paths). A failure is surfaced as a warning, not an abort.
+- **Local tests**: `tests/settings_version_gate_test.lua` (0.56 vs 0.57 branches), `tests/check_sh_test.sh` (repo/deployed layout, failure propagation, SKIP) and `tests/run.sh` (runner alongside the plugin loader test).
+
+### Changed
+- **Strict mode**: `reload.sh`, `lock.sh`, `brightness.sh`, `volume.sh` and `idle-mode.sh` use `set -euo pipefail`; `exit.sh` and `qs_manager.sh` use `-u`/`pipefail` without `-e` so they always reach their user-visible action. `docs/scripts.md` records the policy and the remaining per-script audit.
+- **Docs**: the README badge and feature list now say Hyprland 0.57+ (Lua-only since 0.57), and the config guide notes that `.conf` no longer loads.
 
 ### Fixed
+- **Hyprland 0.57 scratchpads**: the three `special:*` workspace rules used the deprecated `on_created_empty` key (three notices in `hyprctl deprecated-config`). On 0.57+ they now launch from the `workspace.created` event with the workspace's `is_empty` flag; 0.55-0.56 keep `on_created_empty`. New unit test: `tests/workspaces_created_handler_test.lua`.
 - **Hyprland 0.57 deprecations**: `misc.layers_hog_keyboard_focus` moved to `layers.layers_hog_keyboard_focus`, and `dwindle/master.special_scale_factor` are deprecated (0.57 removed the scaling code). Both are version-gated: 0.57+ uses the layers key and approximates the scratchpad inset with workspace gaps; 0.55-0.56 keep the old keys. No deprecation notices from `hyprctl deprecated-config`.
 - **Hyprland 0.57 config error on `decoration.shadow.render_power`**: the shipped default was `5`, but Hyprland defines the option as `1..4`. Hyprland 0.57.0 began forwarding option ranges to the Lua config (`config/lua: fix forwarding of details to lua values`), so the previously silent value now surfaced as `error setting 'decoration.shadow.render_power': value 5 is more than the maximum of 4` on fresh installs. Capped at `4` (the allowed maximum); the shadow falloff is visually unchanged.
 

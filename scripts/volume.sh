@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ Volume Control Script                                                     ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
@@ -37,7 +38,7 @@ send_notification() {
     notify-send -h int:value:"$volume" -h string:x-canonical-private-synchronous:volume "Volume" "$text" -i "$icon" -t 1500
 }
 
-case "$1" in
+case "${1:-}" in
     up)
         pamixer -i $STEP
         send_notification
