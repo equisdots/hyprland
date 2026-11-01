@@ -25,12 +25,17 @@ run() {
     fi
 }
 
+LUA=""
 if command -v lua5.5 >/dev/null 2>&1; then
-    run lua5.5 tests/settings_version_gate_test.lua
+    LUA=lua5.5
 elif command -v lua >/dev/null 2>&1; then
-    run lua tests/settings_version_gate_test.lua
+    LUA=lua
+fi
+if [ -n "$LUA" ]; then
+    run "$LUA" tests/settings_version_gate_test.lua
+    run "$LUA" tests/workspaces_created_handler_test.lua
 else
-    echo "== settings version gate: SKIP (no lua interpreter)"
+    echo "== lua tests: SKIP (no lua interpreter)"
     skipped=$((skipped + 1))
 fi
 

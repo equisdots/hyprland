@@ -52,9 +52,31 @@ hl.workspace_rule({ workspace = "4", monitor = MON_LEFT4, default = true })
 -- │ SPECIAL WORKSPACES (Scratchpads)                                         │
 -- │                                                                           │
 -- │ Named scratchpads toggled with keybinds. They launch their app           │
--- │ automatically on first toggle via on_created_empty.                      │
+-- │ automatically the first time they are opened. 0.57 deprecates the        │
+-- │ on_created_empty rule key, so use workspace.created + is_empty there.    │
 -- └───────────────────────────────────────────────────────────────────────────┘
 
-hl.workspace_rule({ workspace = "special:terminal", on_created_empty = "kitty --class scratchpad-terminal", gaps_out = SPECIAL_GAPS })
-hl.workspace_rule({ workspace = "special:files", on_created_empty = "nautilus", gaps_out = SPECIAL_GAPS })
-hl.workspace_rule({ workspace = "special:music", on_created_empty = "spotify", gaps_out = SPECIAL_GAPS })
+local SCRATCHPADS = {
+    terminal = "kitty --class scratchpad-terminal",
+    files    = "nautilus",
+    music    = "spotify",
+}
+
+local function scratchpad_name(ws)
+    if not ws or not ws.special then return nil end
+    return (ws.name or ""):match("^special:(.+)$") or ws.name
+end
+
+if IS_057 then
+    hl.on("workspace.created", function(ws)
+        if not ws or not ws.is_empty then return end
+        local cmd = SCRATCHPADS[scratchpad_name(ws)]
+        if cmd then hl.exec_cmd(cmd) end
+    end)
+end
+
+for name, cmd in pairs(SCRATCHPADS) do
+    local rule = { workspace = "special:" .. name, gaps_out = SPECIAL_GAPS }
+    if not IS_057 then rule.on_created_empty = cmd end
+    hl.workspace_rule(rule)
+end
