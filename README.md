@@ -254,9 +254,27 @@ chmod +x install.sh
   <a href="SECURITY.md">Security</a>
 </p>
 
-## Local checks
+## Testing
 
-No CI: run the checks locally before pushing.
+There is no CI. Tests run locally and are the quality gate for the config, the
+installer and the local Lua/Bash helpers. The single entry point is:
+
+```bash
+tests/run.sh
+```
+
+| Suite | Covers |
+|---|---|
+| `tests/settings_version_gate_test.lua` | 0.56 vs 0.57 settings branches (`layers` vs `misc`, `special_scale_factor`) |
+| `tests/workspaces_created_handler_test.lua` | Scratchpad launch path (`workspace.created` + `is_empty` on 0.57, `on_created_empty` on 0.56) |
+| `tests/check_sh_test.sh` | `scripts/check.sh` repo/deployed layouts, failure propagation and missing-binary skip |
+| `tests/installer_check_test.sh` | `install.sh --dotfiles-only` in a temporary HOME with stubs, including the deployed self-check |
+| `tests/plugins_loader_test.sh` | Plugin loader ids, collisions, overrides and cached binds |
+
+`tests/run.sh` reports and skips suites whose environment is missing (for
+example no `lua`, `jq` or `luac`) and returns non-zero on a real failure.
+
+The syntax/config gate is separate:
 
 ```bash
 scripts/check.sh
@@ -264,6 +282,8 @@ scripts/check.sh
 
 - `luac -p` over every `config/**/*.lua` module.
 - `bash -n` over every shell script (`shellcheck`, advisory, when installed).
+- `Hyprland --verify-config` against the repo or the deployed config (0.57 also
+  validates option ranges).
 
 <h2 align="center" id="related-repos">Related Repos</h2>
 <ul>
