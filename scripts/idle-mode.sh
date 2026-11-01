@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # Idle / auto-lock control.
 #
 #   idle-mode.sh awake   -> nothing auto-locks or suspends; manual only
@@ -34,10 +35,12 @@ stop_idle() {
 }
 
 notify() {
-    command -v notify-send >/dev/null 2>&1 && notify-send -t 3500 "Idle & sleep" "$1"
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send -t 3500 "Idle & sleep" "$1"
+    fi
 }
 
-case "$1" in
+case "${1:-}" in
     awake)
         ensure_state
         printf '{"idleMode":"awake"}' > "$STATE"

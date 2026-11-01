@@ -74,8 +74,10 @@ if command -v Hyprland >/dev/null 2>&1 && [ -f "$CONFIG_FILE" ]; then
         fail=1
     fi
     rm -f "$verify_out"
-else
+elif ! command -v Hyprland >/dev/null 2>&1; then
     echo "Hyprland: SKIP (binary not found; install hyprland for the config gate)"
+else
+    echo "Hyprland: SKIP (config not found: $CONFIG_FILE)"
 fi
 
 if [ "$fail" -eq 0 ]; then

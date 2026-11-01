@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -uo pipefail
 
 # -----------------------------------------------------------------------------
 # GLOBAL VARS
@@ -14,9 +15,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/ws-desktops-lib.sh"
 # FAST PATH: WORKSPACE / DESKTOP SWITCHING
 # Must be first — before any other sourcing, caching, or pgrep.
 # -----------------------------------------------------------------------------
-ACTION="$1"
-TARGET="$2"
-SUBTARGET="$3"
+ACTION="${1:-}"
+TARGET="${2:-}"
+SUBTARGET="${3:-}"
 
 if [[ "$ACTION" =~ ^[0-9]+$ ]]; then
     # Send IPC command directly to Main.qml via Quickshell's native IPC handler

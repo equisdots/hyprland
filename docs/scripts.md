@@ -37,3 +37,11 @@ All scripts reside in the repository root `scripts/` directory and are deployed 
 | `screenshot.sh` (plugin) | Screenshot and recording with virtual audio. Ships as the `screenshots` plugin (`~/.config/hypr/plugins/screenshots/scripts/`, installed by default by dots): area selection, full screen, active window, edit mode (satty), recording (gpu-screen-recorder with virtual audio routing), QR scanning (zbarimg), multi-track audio with independent desktop/mic controls. |
 | `update_notifier.sh` | Checks for updates every 10 minutes. Compares local version against remote, shows notification if newer version is available, and signals the bar to show an update icon. |
 | `workspaces.sh` | Daemon that listens to Hyprland socket events and generates workspace state JSON (id, state: active/occupied/empty, tooltip, app classes). Uses 50ms debouncing to prevent CPU overload during rapid window events. Includes zombie cleanup of stale instances. |
+
+## Strict mode policy
+
+- **One-shot actions and installers** use `set -euo pipefail`: they must fail fast instead of continuing with a half-applied change.
+- **Daemons and watchers** (`workspaces.sh`, `volume_listener.sh`, `update_notifier.sh`, `restore-monitors.sh`) keep `-e` off so one failed event does not kill the loop; use explicit error handling and supervision (systemd) instead.
+- **Sourced libraries** (`caching.sh`, `ws-desktops-lib.sh`) must not set shell options; the caller owns the shell policy.
+
+Current audit (2026-11-01): `install-xfetch.sh`, `install-xtop.sh`, `scenes.sh`, `wallpapers*.sh`, `lock.sh`, `reload.sh`, `brightness.sh`, `volume.sh` and `idle-mode.sh` are strict. `exit.sh` and `qs_manager.sh` use `-u`/`pipefail` without `-e` because they must always reach their user-visible action. `dotfiles-update.sh` intentionally uses `-uo pipefail` (network failures are reported, not fatal). `monitor-manager.sh`, `scale-menu.sh` and `gpu-mode.sh` are interactive menus and keep `-e` off until their failure paths are audited; `init.sh` and `persist-display-config.sh` are still pending.

@@ -1,6 +1,6 @@
 # Hyprland Configuration
 
-Since Hyprland 0.55 the configuration is written in **Lua** (`hyprland.lua`). Each concern lives in its own Lua module loaded with `require()`.
+Since Hyprland 0.55 the configuration is written in **Lua** (`hyprland.lua`). Each concern lives in its own Lua module loaded with `require()`. Since **0.57.0** Lua is the only config provider: the legacy hyprlang loader was removed, so a `.conf` no longer loads.
 
 ## Configuration Files
 
