@@ -10,6 +10,13 @@
 #   scale-menu.sh            rofi menu
 #   scale-menu.sh 1.5        set an explicit scale
 #   scale-menu.sh up|down    step through the ladder below
+#
+# Strict mode: `-u`/`pipefail` only. The rofi menu is interactive: dismissing
+# it (empty pick) is a normal exit 0, and a failed hyprctl eval/notification
+# must not abort the script. `$1` defaults to empty so the bare invocation
+# still opens the menu under `set -u`.
+
+set -uo pipefail
 
 if ! command -v jq >/dev/null 2>&1; then
     exit 1
@@ -59,7 +66,7 @@ next_in_ladder() {
     }'
 }
 
-case "$1" in
+case "${1:-}" in
     up|down)
         scale=$(next_in_ladder "$1")
         ;;

@@ -41,7 +41,17 @@ All scripts reside in the repository root `scripts/` directory and are deployed 
 ## Strict mode policy
 
 - **One-shot actions and installers** use `set -euo pipefail`: they must fail fast instead of continuing with a half-applied change.
-- **Daemons and watchers** (`workspaces.sh`, `volume_listener.sh`, `update_notifier.sh`, `restore-monitors.sh`) keep `-e` off so one failed event does not kill the loop; use explicit error handling and supervision (systemd) instead.
+- **Interactive menus** use `set -uo pipefail` without `-e`: dismissing the rofi picker or cancelling an action is a normal outcome, not a script error, and best-effort `hyprctl`/notification calls must not abort the menu. Positional arguments are read as `${1:-}` so a bare invocation still works under `set -u`.
+- **Commands that must always reach a user-visible action** (session exit, IPC routing, network updater) use `-uo pipefail` without `-e` and handle failures explicitly.
+- **Daemons and watchers** (`workspaces.sh`, `volume_listener.sh`, `update_notifier.sh`, `restore-monitors.sh`) keep all strict options off so one failed event does not kill the loop; use explicit error handling and supervision (systemd) instead.
 - **Sourced libraries** (`caching.sh`, `ws-desktops-lib.sh`) must not set shell options; the caller owns the shell policy.
+- **Test harnesses** (`tests/run.sh`, `tests/*.sh`) use `-u` (and sometimes `-o pipefail`) without `-e`: a failing assertion must be collected and reported, not abort the runner.
 
-Current audit (2026-11-01): `install-xfetch.sh`, `install-xtop.sh`, `scenes.sh`, `wallpapers*.sh`, `lock.sh`, `reload.sh`, `brightness.sh`, `volume.sh` and `idle-mode.sh` are strict. `exit.sh` and `qs_manager.sh` use `-u`/`pipefail` without `-e` because they must always reach their user-visible action. `dotfiles-update.sh` intentionally uses `-uo pipefail` (network failures are reported, not fatal). `monitor-manager.sh`, `scale-menu.sh` and `gpu-mode.sh` are interactive menus and keep `-e` off until their failure paths are audited; `init.sh` and `persist-display-config.sh` are still pending.
+### Current audit (2026-11-01)
+
+| Classification | Scripts | Notes |
+|----------------|---------|-------|
+| `set -euo pipefail` | `install-xfetch.sh`, `install-xtop.sh`, `scenes.sh`, `wallpapers*.sh`, `lock.sh`, `reload.sh`, `brightness.sh`, `volume.sh`, `idle-mode.sh`, `init.sh`, `persist-display-config.sh` | One-shot actions fail fast. `init.sh` guards the optional scene-state read and the wallpaper scan with `|| true`; a failed wallpaper apply aborts before the initialized flag is written, so the next session retries. `persist-display-config.sh` guards the optional `settings.json` read and fails fast on invalid `hyprctl` JSON, which its callers already wrap in `|| true`. |
+| `set -uo pipefail` (no `-e`) | `exit.sh`, `qs_manager.sh`, `dotfiles-update.sh`, `monitor-manager.sh`, `scale-menu.sh`, `gpu-mode.sh` | `exit.sh`/`qs_manager.sh` must reach their action. `dotfiles-update.sh` treats network failures as reports, not fatal errors. `monitor-manager.sh`/`scale-menu.sh`/`gpu-mode.sh` are interactive menus: empty/cancelled selections exit cleanly, so `-e` is intentionally omitted. |
+| No strict options | `workspaces.sh`, `volume_listener.sh`, `update_notifier.sh`, `restore-monitors.sh` | Long-running daemons; a single failed event must not terminate the loop. |
+| Caller owns options | `caching.sh`, `ws-desktops-lib.sh` | Sourced libraries only. |

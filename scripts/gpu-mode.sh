@@ -6,13 +6,20 @@
 
 export LC_NUMERIC="C"
 
+# Strict mode: `-u`/`pipefail` only. `status` runs from Waybar on every poll,
+# and `menu`/`cycle` are interactive: a failing `envycontrol --query`, a
+# dismissed rofi pick, or a failed notification must not abort the next poll.
+# `$1` defaults to empty so a bare invocation prints usage under `set -u`.
+
+set -uo pipefail
+
 # ────────────────────────────────────────────────────────────────────────────
 # Configuration
 # ────────────────────────────────────────────────────────────────────────────
 
 if ! command -v envycontrol >/dev/null 2>&1; then
     # Return silent error for status checks, notify for actions
-    if [ "$1" != "status" ]; then
+    if [ "${1:-}" != "status" ]; then
         notify-send -u critical "GPU Mode" "envycontrol is not installed.\nPlease install it via yay/pacman."
     fi
     exit 1
@@ -140,7 +147,7 @@ cycle_mode() {
 # Main
 # ────────────────────────────────────────────────────────────────────────────
 
-case "$1" in
+case "${1:-}" in
     status) status_output ;;
     menu)   show_menu ;;
     cycle)  cycle_mode ;;
