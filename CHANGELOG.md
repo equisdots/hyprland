@@ -4,6 +4,7 @@
 
 ### Added
 - **Local config gate**: `scripts/check.sh` now runs `Hyprland --verify-config` when the binary is installed, catching parse and out-of-range errors before a reload; it skips cleanly when Hyprland is absent.
+- **Dual-layout check**: `scripts/check.sh` detects whether it runs from the repo checkout or the deployed `~/.config/hypr` tree, so the Lua scan and the `--verify-config` gate point at the right files in both layouts.
 
 ### Fixed
 - **Hyprland 0.57 deprecations**: `misc.layers_hog_keyboard_focus` moved to `layers.layers_hog_keyboard_focus`, and `dwindle/master.special_scale_factor` are deprecated (0.57 removed the scaling code). Both are version-gated: 0.57+ uses the layers key and approximates the scratchpad inset with workspace gaps; 0.55-0.56 keep the old keys. No deprecation notices from `hyprctl deprecated-config`.
