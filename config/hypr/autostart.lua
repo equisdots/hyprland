@@ -44,6 +44,10 @@ hl.on("hyprland.start", function()
     -- Wallpaper daemon
     hl.exec_cmd("xwww-daemon")
 
+    -- Liquid-glass snapshot: follow direct xwww still-image changes so the
+    -- Quickshell lens does not depend on the davincix picker having run.
+    hl.exec_cmd("~/.config/hypr/scripts/glass-sync.sh")
+
     -- Quickshell QML-based shell — SINGLE ENTRY POINT via Shell.qml
     -- Shell.qml loads Main.qml + TopBar.qml + Floating.qml internally
     -- Scoped Qt logging rule: QWaylandTextInputv3 emits harmless focus
