@@ -80,7 +80,7 @@ force the release install and update.
    dirs exist
 8. Optionally installs the static login theme (equisdots/login, SDDM)
 9. Installs the shell payload through `equisdots/dots` (Quickshell UI, palettes,
-   theme-sync, davincix, timex): runs `dots install` when available and fetches
+   theme-sync, davinci, timex): runs `dots install` when available and fetches
    it on demand otherwise. Under `dots system` this step is skipped because the
    meta installer runs it right after.
 10. Enables system services (NetworkManager, power-profiles-daemon, swayosd, pipewire, wireplumber)
@@ -100,14 +100,14 @@ Removes all deployed configuration files and the login theme (delegated to equis
 - Default terminal: SUPER + Return
 - App launcher: SUPER + D
 
-The first boot will initialize the wallpaper daemon (davincix + xwww), pick a
+The first boot will initialize the wallpaper daemon (davinci + xwww), pick a
 random wallpaper and start all background services automatically.
 
 ## Wallpaper stack
 
-Still wallpapers are applied by `davincix` through **xwww** (fork of awww with
+Still wallpapers are applied by `davinci` through **xwww** (fork of awww with
 the extra transitions). `install.sh` installs the checksum-verified prebuilt
-release for `x86_64`/`aarch64` — only the two binaries davincix needs
+release for `x86_64`/`aarch64` — only the two binaries davinci needs
 (`xwww` + `xwww-daemon` in `/usr/local/bin`) — and falls back to a source build
 (rust) when there is no release for the machine. `XWWW_VERSION` overrides the
 release tag and `FORCE_XWWW=1` reinstalls an existing one; standalone

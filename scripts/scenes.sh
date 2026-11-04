@@ -5,7 +5,7 @@
 # Scenes are dynamic wallpapers rendered by the xwww scene engine (a directory
 # with scene.js plus its assets). They live in the equisdots/background repo
 # under scenes/ and are installed as directories inside the wallpaper
-# collection (~/.config/hypr/wallpapers/), where davincix lists them next to
+# collection (~/.config/hypr/wallpapers/), where davinci lists them next to
 # images and videos and the Quickshell picker (SUPER + W) shows them.
 #
 # Usage:
@@ -158,4 +158,4 @@ done
 [ "$count" -gt 0 ] || die "no scene directories (scene.js) found in the source"
 
 ok "Scenes installed to $DEST:$names"
-msg "Apply one from the picker (SUPER + W) or: davincix set $DEST/<scene>"
+msg "Apply one from the picker (SUPER + W) or: davinci set $DEST/<scene>"

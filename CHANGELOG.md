@@ -42,7 +42,7 @@
 ## [2026-10-02]
 
 ### Added
-- **Interactive wallpapers**: `scripts/init.sh` restores the active xwww scene from the davincix `current_scene` state before the first-boot wallpaper check, so the scene comes back on reboot.
+- **Interactive wallpapers**: `scripts/init.sh` restores the active xwww scene from the davinci `current_scene` state before the first-boot wallpaper check, so the scene comes back on reboot.
 - **Palette widget**: `SUPER + SHIFT + P` toggles the shell's standalone palette switcher (`ui/panels/palette/PaletteWidget.qml`, shell repo). Its anchor is configurable with `settings.widgets.palette.position`.
 
 ### Changed

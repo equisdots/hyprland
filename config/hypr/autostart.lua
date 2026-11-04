@@ -45,7 +45,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("xwww-daemon")
 
     -- Liquid-glass snapshot: follow direct xwww still-image changes so the
-    -- Quickshell lens does not depend on the davincix picker having run.
+    -- Quickshell lens does not depend on the davinci picker having run.
     hl.exec_cmd("~/.config/hypr/scripts/glass-sync.sh")
 
     -- Quickshell QML-based shell — SINGLE ENTRY POINT via Shell.qml
