@@ -71,8 +71,28 @@ read_answer() {
         printf -v "$var" '%s' "$def"
         info "auto (-y): ${var}=${def}"
     else
-        read -r "$var"
+        if ! read -r "$var"; then
+            printf -v "$var" '%s' "$def"
+            info "no input (EOF); using default: ${var}=${def}"
+        fi
     fi
+}
+
+# True when a tool is already installed. Check ~/.local/bin and ~/.cargo/bin
+# explicitly (a TTY install may not export them yet), then PATH, then the
+# package manager so an AUR xfetch-bin/xfetch-git or xtop-bin/xtop-git install
+# is respected even when its binary is not on the current PATH.
+tool_installed() {
+    local tool="$1" pkg
+    if [ -x "$HOME/.local/bin/$tool" ]; then return 0; fi
+    if [ -x "$HOME/.cargo/bin/$tool" ]; then return 0; fi
+    if command -v "$tool" >/dev/null 2>&1; then return 0; fi
+    if command -v pacman >/dev/null 2>&1; then
+        for pkg in "$tool-bin" "$tool-git" "$tool"; do
+            if pacman -Qq "$pkg" >/dev/null 2>&1; then return 0; fi
+        done
+    fi
+    return 1
 }
 
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -1365,26 +1385,48 @@ main() {
         install_starship_config
     fi
 
-    # xfetch (latest release) and xtop (built from source): optional org tools
-    # that theme-sync themes once ~/.config/<tool> exists.
-    if [ -n "${INSTALL_XFETCH:-}" ]; then
-        xfetch_response="$INSTALL_XFETCH"
+    # xfetch and xtop (latest release binaries): optional org tools that
+    # theme-sync themes once ~/.config/<tool> exists. If the tool is already
+    # present, skip it silently so a re-run (or a TTY install) continues with
+    # the rest. INSTALL_XFETCH=1 / INSTALL_XTOP=1 force the release installer.
+    if [ "${INSTALL_XFETCH:-}" = "0" ]; then
+        log "xfetch: skipped (INSTALL_XFETCH=0)"
+    elif [ -z "${INSTALL_XFETCH:-}" ] && tool_installed xfetch; then
+        log "xfetch: already installed; skipping"
     else
-        prompt "Install xfetch (terminal fetch tool, latest release)? [Y/n] "
-        read_answer xfetch_response y
-    fi
-    if [[ ! "$xfetch_response" =~ ^[Nn]$ ]]; then
-        install_xfetch
+        if [ -n "${INSTALL_XFETCH:-}" ]; then
+            xfetch_response="$INSTALL_XFETCH"
+        else
+            prompt "Install xfetch (terminal fetch tool, latest release)? [Y/n] "
+            read_answer xfetch_response y
+        fi
+        if [[ ! "$xfetch_response" =~ ^([Nn]([Oo])?|0)$ ]]; then
+            if [ -n "${INSTALL_XFETCH:-}" ]; then
+                XFETCH_FORCE=1 install_xfetch
+            else
+                install_xfetch
+            fi
+        fi
     fi
 
-    if [ -n "${INSTALL_XTOP:-}" ]; then
-        xtop_response="$INSTALL_XTOP"
+    if [ "${INSTALL_XTOP:-}" = "0" ]; then
+        log "xtop: skipped (INSTALL_XTOP=0)"
+    elif [ -z "${INSTALL_XTOP:-}" ] && tool_installed xtop; then
+        log "xtop: already installed; skipping"
     else
-        prompt "Install xtop (system monitor TUI, built from source)? [y/N] "
-        read_answer xtop_response n
-    fi
-    if [[ "$xtop_response" =~ ^[Yy]$ ]]; then
-        install_xtop
+        if [ -n "${INSTALL_XTOP:-}" ]; then
+            xtop_response="$INSTALL_XTOP"
+        else
+            prompt "Install xtop (system monitor TUI, latest release)? [y/N] "
+            read_answer xtop_response n
+        fi
+        if [[ "$xtop_response" =~ ^([Yy]([Ee][Ss])?|1)$ ]]; then
+            if [ -n "${INSTALL_XTOP:-}" ]; then
+                XTOP_FORCE=1 install_xtop
+            else
+                install_xtop
+            fi
+        fi
     fi
 
     # Hack Nerd Font (UI glyphs + SDDM)

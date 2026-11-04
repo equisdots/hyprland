@@ -40,7 +40,9 @@ manual/optional; set `WALLPAPERS_PACK=<tag>` (e.g. `v1.0.0`, `v1.1.0`, or
 `none`) and/or `WALLPAPER_SCENES=1` to install them non-interactively.
 `SET_ZSH_DEFAULT=1` sets zsh as the login shell without prompting (default
 `0`: it only asks interactively). `INSTALL_XFETCH=1|0` and
-`INSTALL_XTOP=1|0` force or skip the xfetch/xtop installers.
+`INSTALL_XTOP=1|0` force or skip the xfetch/xtop installers. When unset, both
+are auto-skipped if already present in `~/.local/bin` or `PATH`; use `=1` to
+force the release install and update.
 
 ## What the Installer Does
 
@@ -73,7 +75,7 @@ manual/optional; set `WALLPAPERS_PACK=<tag>` (e.g. `v1.0.0`, `v1.1.0`, or
    shows the available releases
 7. Offers the optional org tools, each with its own prompt and script:
    `scripts/install-xfetch.sh` (latest release, checksum-verified) and
-   `scripts/install-xtop.sh` (built from source with cargo); both are deployed
+   `scripts/install-xtop.sh` (latest release, checksum-verified); both are deployed
    to `~/.config/hypr/scripts/` and theme-sync themes them once their config
    dirs exist
 8. Optionally installs the static login theme (equisdots/login, SDDM)
