@@ -24,10 +24,11 @@ fi
 
 SETTINGS="$HOME/.config/hypr/settings.json"
 
-# Scales that keep the logical resolution usable at every size. 0.8 and above
-# divide 1920x1080 into whole pixels; 0.75 and 0.7 are the extra low-end rungs
-# (0.7 rounds logical pixels, so Hyprland may render slightly soft there).
-LADDER="0.7 0.75 0.8 1.0 1.25 1.5 2.0"
+# Hyprland only keeps scales that produce whole logical pixels (native/scale
+# must be an integer). 0.7 is NOT representable: Hyprland silently snaps it to
+# 2/3 (0.6666667), so the stored value never matches the live one and the menu
+# desyncs. Use the exact 2/3 value for the low-end rung instead.
+LADDER="0.6666667 0.75 0.8 1.0 1.25 1.5 2.0"
 
 mkdir -p "$(dirname "$SETTINGS")"
 [ ! -f "$SETTINGS" ] && echo '{}' > "$SETTINGS"
@@ -74,7 +75,7 @@ case "${1:-}" in
         command -v rofi >/dev/null 2>&1 || exit 1
         choices=""
         for s in $LADDER; do
-            pct=$(awk -v s="$s" 'BEGIN{ printf "%d", s*100 }')
+            pct=$(awk -v s="$s" 'BEGIN{ printf "%d", s*100 + 0.5 }')
             mark=""
             [ "$s" = "$CURRENT" ] && mark="  ●"
             choices="${choices}${pct}% (${s})${mark}\n"
