@@ -17,21 +17,19 @@
 set -euo pipefail
 
 # Kernel paths (davinci repo; dots installs it under ~/.local/share/equisdots).
-KERNEL_DIR="${DAVINCI_KERNEL_DIR:-${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davinci}}"
-[ -f "$KERNEL_DIR/paths.sh" ] || KERNEL_DIR="${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davincix}"
+KERNEL_DIR="${DAVINCI_KERNEL_DIR:-$HOME/.local/share/equisdots/davinci}"
 if [ -f "$KERNEL_DIR/paths.sh" ]; then
     # shellcheck disable=SC1091
     . "$KERNEL_DIR/paths.sh"
 fi
 
 # Defaults mirrored from the kernel so the state flag keeps working without it.
-DAVINCI_WALLPAPER_DIR="${DAVINCI_WALLPAPER_DIR:-${DAVINCIX_WALLPAPER_DIR:-${WALLPAPER_DIR:-$HOME/.config/hypr/wallpapers}}}"
-DAVINCI_STATE_DIR="${DAVINCI_STATE_DIR:-${DAVINCIX_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/wallpaper_picker}}"
+DAVINCI_WALLPAPER_DIR="${DAVINCI_WALLPAPER_DIR:-${WALLPAPER_DIR:-$HOME/.config/hypr/wallpapers}}"
+DAVINCI_STATE_DIR="${DAVINCI_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/wallpaper_picker}"
 
 # CLI: env override, PATH, then the dots wrapper.
-DAVINCI_CLI="${DAVINCI_CLI:-${DAVINCIX_CLI:-$(command -v davinci 2>/dev/null || command -v davincix 2>/dev/null || true)}}"
+DAVINCI_CLI="${DAVINCI_CLI:-$(command -v davinci 2>/dev/null || true)}"
 [ -x "$DAVINCI_CLI" ] || DAVINCI_CLI="$HOME/.local/bin/davinci"
-[ -x "$DAVINCI_CLI" ] || DAVINCI_CLI="$HOME/.local/bin/davincix"
 if [ ! -x "$DAVINCI_CLI" ]; then
     echo "init.sh: davinci CLI not found; skipping wallpaper init" >&2
     exit 0
