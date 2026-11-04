@@ -91,13 +91,9 @@ fi
 # HELPERS
 # -----------------------------------------------------------------------------
 # The wallpaper kernel lives in its own repository (dots installs it under
-# ~/.local/share/equisdots/davinci). New installs expose davinci.sh; the old
-# davincix clone and davincix.sh entry point remain compatibility fallbacks.
-DAVINCI_KERNEL_DIR="${DAVINCI_KERNEL_DIR:-${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davinci}}"
-[ -f "$DAVINCI_KERNEL_DIR/davinci.sh" ] || DAVINCI_KERNEL_DIR="${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davincix}"
+# ~/.local/share/equisdots/davinci).
+DAVINCI_KERNEL_DIR="${DAVINCI_KERNEL_DIR:-$HOME/.local/share/equisdots/davinci}"
 DAVINCI_KERNEL="$DAVINCI_KERNEL_DIR/davinci.sh"
-[ -f "$DAVINCI_KERNEL" ] || DAVINCI_KERNEL="$DAVINCI_KERNEL_DIR/davincix.sh"
-DAVINCIX_KERNEL="$DAVINCI_KERNEL"
 handle_wallpaper_prep() {
     [ -f "$DAVINCI_KERNEL" ] || return 0
     bash "$DAVINCI_KERNEL" thumbs &
