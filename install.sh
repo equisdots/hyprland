@@ -193,7 +193,7 @@ install_packages_debian() {
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ XWWW (WALLPAPER DAEMON)                                                           │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-# Installs only what davincix needs from the xwww fork (extra transitions): the
+# Installs only what davinci needs from the xwww fork (extra transitions): the
 # client 'xwww' and the daemon 'xwww-daemon' in /usr/local/bin (checksum-verified
 # release tarball, source build as fallback). The upstream 'awww' package is not
 # installed. Env:
@@ -709,7 +709,7 @@ install_dotfiles() {
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ PATH: ~/.local/bin                                                                │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-# `dots install` drops the dots/timex/davincix/theme-sync wrappers in
+# `dots install` drops the dots/timex/davinci/theme-sync wrappers in
 # ~/.local/bin; make sure the interactive shells can find them.
 
 ensure_local_bin_path() {
@@ -1116,7 +1116,7 @@ install_login_theme() {
 # ┌───────────────────────────────────────────────────────────────────────────────────┐
 # │ INSTALL USER PAYLOAD (shell, palettes, engines) — via equisdots/dots              │
 # └───────────────────────────────────────────────────────────────────────────────────┘
-# The Quickshell UI, the palettes, theme-sync, davincix and timex live in their
+# The Quickshell UI, the palettes, theme-sync, davinci and timex live in their
 # own repos of the org; `dots install` clones and places them. When this
 # installer runs under `dots system`, dots runs `dots install` right after, so
 # the payload is skipped here (guard). A standalone ./install.sh still leaves a

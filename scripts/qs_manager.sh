@@ -90,12 +90,17 @@ fi
 # -----------------------------------------------------------------------------
 # HELPERS
 # -----------------------------------------------------------------------------
-# El kernel de davincix vive en su propio repo (dots lo instala bajo
-# ~/.local/share/equisdots/davincix); aquí solo se lanza en segundo plano.
-DAVINCIX_KERNEL="${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davincix}/davincix.sh"
+# The wallpaper kernel lives in its own repository (dots installs it under
+# ~/.local/share/equisdots/davinci). New installs expose davinci.sh; the old
+# davincix clone and davincix.sh entry point remain compatibility fallbacks.
+DAVINCI_KERNEL_DIR="${DAVINCI_KERNEL_DIR:-${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davinci}}"
+[ -f "$DAVINCI_KERNEL_DIR/davinci.sh" ] || DAVINCI_KERNEL_DIR="${DAVINCIX_KERNEL_DIR:-$HOME/.local/share/equisdots/davincix}"
+DAVINCI_KERNEL="$DAVINCI_KERNEL_DIR/davinci.sh"
+[ -f "$DAVINCI_KERNEL" ] || DAVINCI_KERNEL="$DAVINCI_KERNEL_DIR/davincix.sh"
+DAVINCIX_KERNEL="$DAVINCI_KERNEL"
 handle_wallpaper_prep() {
-    [ -f "$DAVINCIX_KERNEL" ] || return 0
-    bash "$DAVINCIX_KERNEL" thumbs &
+    [ -f "$DAVINCI_KERNEL" ] || return 0
+    bash "$DAVINCI_KERNEL" thumbs &
 }
 
 handle_network_prep() {
@@ -144,7 +149,7 @@ if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
     if [[ "$TARGET" == "wallpaper" ]]; then
         handle_wallpaper_prep
         TARGET_THUMB=""
-        [ -f "$DAVINCIX_KERNEL" ] && TARGET_THUMB="$(bash "$DAVINCIX_KERNEL" current --thumb-name 2>/dev/null)"
+        [ -f "$DAVINCI_KERNEL" ] && TARGET_THUMB="$(bash "$DAVINCI_KERNEL" current --thumb-name 2>/dev/null)"
 
         $QS -p "$SHELL_QML_PATH" ipc call main handleCommand "$ACTION" "$TARGET" "$TARGET_THUMB" >/dev/null 2>&1
     else

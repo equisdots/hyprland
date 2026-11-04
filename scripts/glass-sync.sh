@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════════
 # equisdots · glass-sync — keep the liquid-glass wallpaper snapshot current.
 #
-# LiquidGlass samples a single PNG from the Quickshell cache. davincix writes
+# LiquidGlass samples a single PNG from the Quickshell cache. davinci writes
 # that file when it applies a wallpaper, but a direct `xwww img/set` call does
 # not. This daemon follows `xwww query` and rewrites the snapshot when the
 # active still image changes. Scenes, videos and missing files are ignored:

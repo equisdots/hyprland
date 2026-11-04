@@ -290,7 +290,7 @@ scripts/check.sh
   <li><a href="https://github.com/equisdots/shell">Shell</a> - Quickshell UI (bar, popups, panels, editor, lock)</li>
   <li><a href="https://github.com/equisdots/palettes">Palettes</a> - base16 palette data + schema</li>
   <li><a href="https://github.com/equisdots/theme-sync">theme-sync</a> - cross-app theming engine</li>
-  <li><a href="https://github.com/equisdots/davincix">davincix</a> - wallpaper engine kernel</li>
+  <li><a href="https://github.com/equisdots/davinci">davinci</a> - wallpaper engine kernel</li>
   <li><a href="https://github.com/equisdots/dots">dots</a> - meta installer and updater</li>
   <li><a href="https://github.com/equisdots/timex">timex</a> - time, weather and calendar engine</li>
   <li><a href="https://github.com/equisdots/login">login</a> - static SDDM greeter</li>

@@ -69,7 +69,7 @@ hl.env("MOZ_DBUS_REMOTE", "1")
 hl.env("WALLPAPER_DIR", os.getenv("HOME") .. "/.config/hypr/wallpapers")
 hl.env("SCRIPT_DIR", os.getenv("HOME") .. "/.config/hypr/scripts")
 
--- ~/.local/bin holds the dots/davincix/theme-sync wrappers and the
+-- ~/.local/bin holds the dots/davinci/theme-sync wrappers and the
 -- scene-capable xwww build; the session may not inherit it from the shell rc.
 local localBin = os.getenv("HOME") .. "/.local/bin"
 local sessionPath = os.getenv("PATH") or ""
