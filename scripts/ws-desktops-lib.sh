@@ -17,7 +17,7 @@
 # defaults of desktop 1; this file drives the actual switching).
 
 ROSTER_DESCS=(
-    "BOE NE160WUM-NXA"
+    "AU Optronics B156HAN15.H"
     "Xiaomi Corporation P27FBB-RGGL 5275600003084"
     "Xiaomi Corporation P27FBB-RGGL 5275600003570"
     "Xiaomi Corporation P27FBB-RGGL 5275600072695"
