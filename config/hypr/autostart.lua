@@ -28,10 +28,12 @@ hl.on("hyprland.start", function()
     -- │ UI COMPONENTS                                                         │
     -- └───────────────────────────────────────────────────────────────────────┘
 
-    -- Kill any leftover shells from previous sessions
-    hl.exec_cmd("pkill -f \"quickshell.*Main.qml\" 2>/dev/null || true")
-    hl.exec_cmd("pkill -f \"quickshell.*TopBar.qml\" 2>/dev/null || true")
-    hl.exec_cmd("pkill -f \"quickshell.*Floating.qml\" 2>/dev/null || true")
+    -- Kill any leftover shell from a previous Hyprland session/restart.
+    -- The current entry point is Shell.qml (`qs -p .../quickshell/Shell.qml`);
+    -- the old Main/TopBar/Floating entry points no longer exist. The anchored
+    -- qs/quickshell form prevents the pattern from matching this pkill itself
+    -- or the launcher wrapper below.
+    hl.exec_cmd("pkill -f '^([^ ]*/)?(qs|quickshell) -p .*quickshell/Shell[.]qml' 2>/dev/null || true")
 
     -- Monitor layout restorer/reconciler: applies display-config at session
     -- start and re-applies any drift (~2s poll) so late-enumerating dock
