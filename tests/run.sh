@@ -34,6 +34,7 @@ fi
 if [ -n "$LUA" ]; then
     run "$LUA" tests/settings_version_gate_test.lua
     run "$LUA" tests/workspaces_created_handler_test.lua
+    run "$LUA" tests/monitor_layout_test.lua
 else
     echo "== lua tests: SKIP (no lua interpreter)"
     skipped=$((skipped + 1))
@@ -41,6 +42,7 @@ fi
 
 run bash tests/check_sh_test.sh
 run bash tests/installer_check_test.sh
+run bash tests/restore_monitors_mode_test.sh
 
 if command -v jq >/dev/null 2>&1; then
     run bash tests/plugins_loader_test.sh

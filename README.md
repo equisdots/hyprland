@@ -267,6 +267,8 @@ tests/run.sh
 |---|---|
 | `tests/settings_version_gate_test.lua` | 0.56 vs 0.57 settings branches (`layers` vs `misc`, `special_scale_factor`) |
 | `tests/workspaces_created_handler_test.lua` | Scratchpad launch path (`workspace.created` + `is_empty` on 0.57, `on_created_empty` on 0.56) |
+| `tests/monitor_layout_test.lua` | `display-config` parser + `monitorsMode` gating: legacy 5-field lines, extended fields, malformed lines, disabled screens |
+| `tests/restore_monitors_mode_test.sh` | `restore-monitors.sh --mode` / `--once` / `--daemon` settings gating |
 | `tests/check_sh_test.sh` | `scripts/check.sh` repo/deployed layouts, failure propagation and missing-binary skip |
 | `tests/installer_check_test.sh` | `install.sh --dotfiles-only` in a temporary HOME with stubs, including the deployed self-check |
 | `tests/plugins_loader_test.sh` | Plugin loader ids, collisions, overrides and cached binds |

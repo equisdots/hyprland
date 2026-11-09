@@ -1,22 +1,28 @@
 #!/usr/bin/env bash
-# Authoritative monitor layout restorer + reconciler.
+# Monitor layout verifier / optional reconciler.
 #
-# Applies the layout saved in ~/.config/hypr/display-config and keeps it that
-# way: a poll loop every ~2s compares the live state of every saved screen
-# (matched by EDID DESCRIPTION, which survives connector renames like
-# DP-5 -> DP-3) against the saved x/y/scale/refresh-rate plus the extended
-# fields (transform/vrr/bitdepth/cm/mirror/disabled) and re-applies any drift.
-# Recovering from:
-#   - dock monitors that enumerate after login,
-#   - unplug/re-plug (re-dock),
-#   - stray `hyprctl reload` that resets outputs to "auto",
-#   - kernel renaming connectors between boots.
+# The saved layout is applied primarily by config/hypr/monitors.lua, which
+# registers ~/.config/hypr/display-config as hl.monitor() rules at config load
+# (so Hyprland applies them on boot, hotplug/re-dock and config reload with no
+# timing race). This script only handles the settings.json → monitorsMode:
 #
-# Self-healing means edits made through your own tools are safe: monitor-
-# manager.sh, scale-menu.sh and quickshell Config.qml all re-persist
-# display-config after applying, so the reconciler converges instead of
-# fighting them. Manually re-arranging WITHOUT persisting (e.g. wdisplays)
-# will be reverted within ~2-4s.
+#   static      (default) one verification pass ~2 s after start, then exit.
+#               Catches an output that was still settling when Hyprland read
+#               the rules; otherwise a no-op.
+#   reconciler  legacy poll loop: compare every saved screen (matched by EDID
+#               DESCRIPTION, survives DP-5 → DP-3 renames) and re-apply drift
+#               every ~2 s. Useful for docks that enumerate late or firmware
+#               that silently drops a mode.
+#   off         do nothing; the wildcard rule owns the layout.
+#
+# CLI (manual/testing): --mode prints the effective mode, --once forces the
+# static single pass, --daemon forces the reconciler.
+#
+# Self-healing in reconciler mode means edits made through your own tools are
+# safe: monitor-manager.sh, scale-menu.sh and quickshell Config.qml all
+# re-persist display-config after applying, so the reconciler converges instead
+# of fighting them. Manually re-arranging WITHOUT persisting (e.g. wdisplays)
+# is reverted within ~2-4 s.
 #
 # Started from autostart.lua (hyprland.start). Idempotent: re-applying the
 # same values is a visual no-op.
@@ -136,9 +142,66 @@ for t in out:
 PY
 }
 
-# Wait a moment for monitors that may still be enumerating, then reconcile in a
-# loop. After any apply we sleep longer so concurrent modesets don't stomp on
-# each other (avoids DRM "Device or resource busy" storms).
+# ── mode (settings.json → monitorsMode) ─────────────────────────────────────
+# monitors.lua already registered the saved rules at config load, so this
+# script only verifies (static) or keeps enforcing (reconciler).
+SETTINGS="$HOME/.config/hypr/settings.json"
+MODE="static"
+if [ -r "$SETTINGS" ]; then
+    m="$(sed -n 's/.*"monitorsMode"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p' "$SETTINGS" | head -n1)"
+    case "$m" in static|reconciler|off) MODE="$m" ;; esac
+fi
+MODE_QUERY=0
+for arg in "$@"; do
+    case "$arg" in
+        --daemon) MODE="reconciler" ;;
+        --once)   MODE="static" ;;
+        --mode)   MODE_QUERY=1 ;;
+    esac
+done
+if [ "$MODE_QUERY" = "1" ]; then
+    printf '%s\n' "$MODE"
+    exit 0
+fi
+
+# One verification pass: skip while display-config is being written (grace)
+# and apply only the screens that drifted from the saved values.
+reconcile_once() {
+    local SRCFILE changed=0 now mtime
+    SRCFILE="$(resolve_state)"
+    [ -z "$SRCFILE" ] && return 0
+    now=$(date +%s)
+    mtime=$(stat -c %Y "$SRCFILE" 2>/dev/null || echo 0)
+    if [ $((now - mtime)) -lt 3 ]; then
+        return 0
+    fi
+    while IFS='|' read -r desc x y scale mode transform vrr bitdepth cm mirror disabled; do
+        [ -z "$desc" ] && continue
+        apply_rule "$desc" "$x" "$y" "$scale" "$mode" "$transform" "$vrr" "$bitdepth" "$cm" "$mirror" "$disabled"
+        changed=1
+        sleep 0.6
+    done < <(drifted "$SRCFILE")
+    [ "$changed" = "1" ] && sleep 1
+    cp "$SRCFILE" "$STATE_BAK" 2>/dev/null || true
+    return 0
+}
+
+case "$MODE" in
+    off)
+        exit 0
+        ;;
+    static)
+        # Give the initial modesets a moment to settle, then run the sanity
+        # pass. If monitors.lua's rules already landed this is a no-op.
+        sleep 2
+        reconcile_once
+        exit 0
+        ;;
+esac
+
+# reconciler: wait for monitors that may still be enumerating, then enforce
+# the layout continuously. After any apply we sleep longer so concurrent
+# modesets don't stomp on each other (avoids DRM "Device or resource busy").
 sleep 3
 while true; do
     SRCFILE="$(resolve_state)"
