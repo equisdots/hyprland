@@ -100,7 +100,7 @@ jq --argjson s "$scale" '.monitors = [ .monitors[] | .scale = $s ]' "$SETTINGS" 
     && mv "${SETTINGS}.tmp" "$SETTINGS" || { rm -f "${SETTINGS}.tmp"; exit 1; }
 
 # Apply to every connected monitor through the Lua API, then persist the layout
-# to display-config so monitors.lua restores it on the next session instead of
+# to display-config so restore-monitors.sh restores it on the next session instead of
 # falling back to the "auto" DPI scale (which resets to 125%/150% on login).
 # The exact mode string is preserved: plain "preferred" would silently drop
 # every screen to its EDID-preferred 60Hz.
