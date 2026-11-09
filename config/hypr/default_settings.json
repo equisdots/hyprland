@@ -3,6 +3,7 @@
   "appScale": 1.0,
   "workspaceCount": 9,
   "unifiedDesktops": true,
+  "monitorsMode": "static",
   "wallpaperDir": "~/.config/hypr/wallpapers",
   "language": "",
   "kbOptions": "grp:alt_shift_toggle",

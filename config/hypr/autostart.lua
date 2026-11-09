@@ -35,9 +35,10 @@ hl.on("hyprland.start", function()
     -- or the launcher wrapper below.
     hl.exec_cmd("pkill -f '^([^ ]*/)?(qs|quickshell) -p .*quickshell/Shell[.]qml' 2>/dev/null || true")
 
-    -- Monitor layout restorer/reconciler: applies display-config at session
-    -- start and re-applies any drift (~2s poll) so late-enumerating dock
-    -- monitors, re-docks and stray reloads converge back to the saved layout.
+    -- Monitor layout verifier/reconciler. The saved layout is applied by
+    -- monitors.lua at config load; this script self-gates on settings.json
+    -- monitorsMode: "static" (default) runs one sanity pass and exits,
+    -- "reconciler" polls for drift, "off" does nothing.
     -- Started DIRECTLY (no pkill): any pkill for "restore-monitors.sh" also
     -- matches the autostart wrapper's own command line and killed the daemon
     -- at boot. Duplicate daemons are harmless (idempotent apply).
