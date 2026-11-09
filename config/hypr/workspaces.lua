@@ -32,7 +32,7 @@ local SPECIAL_GAPS = IS_057 and 48 or nil
 
 -- --- LAPTOP (rightmost) + externals leftwards ---
 -- NOTE: same order/descriptions as ROSTER_DESCS in scripts/ws-desktops-lib.sh
-local MON_LAPTOP = "desc:BOE NE160WUM-NXA"
+local MON_LAPTOP = "desc:AU Optronics B156HAN15.H"
 local MON_LEFT2  = "desc:Xiaomi Corporation P27FBB-RGGL 5275600003084"  -- DP-6
 local MON_LEFT3  = "desc:Xiaomi Corporation P27FBB-RGGL 5275600003570"  -- HDMI-A-3
 local MON_LEFT4  = "desc:Xiaomi Corporation P27FBB-RGGL 5275600072695"  -- DP-5
@@ -47,6 +47,34 @@ hl.workspace_rule({ workspace = "4", monitor = MON_LEFT4, default = true })
 -- hl.workspace_rule({ workspace = "1", monitor = "desc:YOUR_PRIMARY_DESCRIPTION", default = true })
 -- hl.workspace_rule({ workspace = "2", monitor = "desc:YOUR_SECONDARY_DESCRIPTION" })
 -- hl.workspace_rule({ workspace = "3", monitor = "desc:YOUR_THIRD_DESCRIPTION" })
+
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ BOOT FALLBACK (hardware not in the roster)                               │
+-- │                                                                           │
+-- │ Hyprland's default-workspace picker skips every workspace bound to a     │
+-- │ monitor that is not connected (state/workspace/LifecyclePolicy), so a    │
+-- │ panel whose EDID is not listed above makes the session boot on the first  │
+-- │ free id (5 with this 4-screen roster). Force desktop 1 on the focused     │
+-- │ monitor in that case; roster monitors keep their pinned slots untouched.  │
+-- └───────────────────────────────────────────────────────────────────────────┘
+
+local ROSTER = { MON_LAPTOP, MON_LEFT2, MON_LEFT3, MON_LEFT4 }
+
+local function in_roster(description)
+    for _, selector in ipairs(ROSTER) do
+        -- Same rule as CMonitor::matchesStaticSelector: desc: is a prefix match.
+        local needle = selector:sub(6)
+        if (description or ""):sub(1, #needle) == needle then return true end
+    end
+    return false
+end
+
+hl.on("hyprland.start", function()
+    local focused = hl.get_active_monitor()
+    if focused and not in_roster(focused.description) then
+        hl.dispatch(hl.dsp.focus({ workspace = 1 }))
+    end
+end)
 
 -- ┌───────────────────────────────────────────────────────────────────────────┐
 -- │ SPECIAL WORKSPACES (Scratchpads)                                         │
