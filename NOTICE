@@ -1,0 +1,9 @@
+equisdots/hyprland
+Copyright (C) 2026 xscriptor <x@xscriptor.com>
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+This repository is licensed under the GNU Affero General Public License, version 3 or (at your option) any later version. See LICENSE.
+
+Releases published before 2026-11-13 were distributed under the MIT License and remain available under those terms.
+
+Third-party components, fonts, icons, images, sounds, vendored code and other assets keep their original licenses and are not covered by this license. See THIRD-PARTY.md / CREDITS.md where present.
