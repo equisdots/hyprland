@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026-11-18]
+
+### Changed
+- `install.sh` installs xwww `v0.13.2` by default, adding the `ink`, `paint`, `contagion` and `waterdrop` transitions.
+
 ## [2026-11-01]
 
 ### Added
