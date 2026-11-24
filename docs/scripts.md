@@ -15,7 +15,7 @@ All scripts reside in the repository root `scripts/` directory and are deployed 
 
 | Script / repo | Purpose |
 |--------|---------|
-| [`equisdots/theme-sync`](https://github.com/equisdots/theme-sync) | Modular theming engine (`themesync/` Python package: `core.py`, `runner.py`, `cli.py` + one module per application in `themesync/targets/`: `kitty`, `starship`, `xtop`, `vscode`, `nvim`, `browsers`, `opencode`, `rofi`, `cava`, `qt`, `gtk`, `xfetch`). Installed by `dots` under `~/.local/share/equisdots/theme-sync` with a `~/.local/bin/theme-sync` wrapper; called by the shell palette hook (`ui/bar/Colors.qml`) and `reload.sh`. |
+| [`equisdots/theme-sync`](https://github.com/equisdots/theme-sync) | Modular theming engine (`themesync/` Python package: `core.py`, `runner.py`, `cli.py` + one module per application in `themesync/targets/`: `kitty`, `starship`, `xtop`, `vscode`, `nvim`, `browsers`, `zen`, `opencode`, `rofi`, `cava`, `qt`, `gtk`, `xfetch`). Installed by `dots` under `~/.local/share/equisdots/theme-sync` with a `~/.local/bin/theme-sync` wrapper; called by the shell palette hook (`ui/bar/Colors.qml`) and `reload.sh`. |
 
 ## UI Scripts
 
